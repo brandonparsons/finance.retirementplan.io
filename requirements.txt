@@ -1,0 +1,10 @@
+Quandl==1.9.7
+jdcal==1.0
+numpy==1.8.1
+openpyxl==1.8.6
+pandas==0.14.0
+python-dateutil==2.2
+pytz==2014.4
+redis==2.10.1
+six==1.7.2
+wsgiref==0.1.2

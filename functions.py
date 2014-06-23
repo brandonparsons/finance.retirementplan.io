@@ -52,18 +52,16 @@ def get_stats_info(df):
 def write_csv_files(df, returns, correlation_matrix, covariance_matrix):
     # Store all data as flat csv files. Whenever you run this script, the output
     # files will be overwritten.
-    this_dir = os.path.dirname(__file__)
-    csv_dir = os.path.join(this_dir, os.pardir, 'csv')
+    this_dir    = os.path.dirname(__file__)
+    csv_dir     = os.path.join(this_dir, 'csv') # os.pardir
 
     df.to_csv( os.path.join(csv_dir, 'prices.csv'), header=True, index=True, index_label='Date', sep=',')
     returns.to_csv( os.path.join(csv_dir, 'returns.csv'), header=True, index=True, index_label='Date', sep=',')
     correlation_matrix.to_csv( os.path.join(csv_dir, 'correlation_matrix.csv'), header=True, index=True, sep=',')
     covariance_matrix.to_csv( os.path.join(csv_dir, 'covariance_matrix.csv'), header=True, index=True, sep=',')
 
-def write_redis_data(tickers, df, mean_returns, std_dev_of_returns, correlation_matrix, covariance_matrix):
-    # Store all data in a Redis database
-    pool = redis.ConnectionPool(host='localhost', port=6379, db=6)
-    r = redis.Redis(connection_pool=pool)
+def write_redis_data(redis_conn, tickers, df, mean_returns, std_dev_of_returns, correlation_matrix, covariance_matrix):
+    # Store relevant data in a Redis database
 
     # Iterate through each ticker and save its data into the db
     for ticker in tickers:
@@ -71,24 +69,24 @@ def write_redis_data(tickers, df, mean_returns, std_dev_of_returns, correlation_
         # Prices: HASH
         name = ''.join([ticker, ':prices'])
         for row in df.iterrows():
-            r.hset(name=name, key=row[0].date().strftime('%Y-%m-%d'), value=row[1][ticker])
+            redis_conn.hset(name=name, key=row[0].date().strftime('%Y-%m-%d'), value=row[1][ticker])
 
         # Mean return: VALUE
         name = ''.join([ticker, ':mean_return'])
-        r.set(name=name, value=mean_returns[ticker])
+        redis_conn.set(name=name, value=mean_returns[ticker])
 
         # Standard-deviation: VALUE
         name = ''.join([ticker, ':std_dev'])
-        r.set(name=name, value=std_dev_of_returns[ticker])
+        redis_conn.set(name=name, value=std_dev_of_returns[ticker])
 
         # Correlations: HASH
         name = ''.join([ticker, ':correlations'])
         temp = dict(correlation_matrix[ticker])
         for i in temp.iteritems():
-            r.hset(name=name, key=i[0], value=i[1])
+            redis_conn.hset(name=name, key=i[0], value=i[1])
 
         # Covariances: HASH
         name = ''.join([ticker, ':covariances'])
         temp = dict(covariance_matrix[ticker])
         for i in temp.iteritems():
-            r.hset(name=name, key=i[0], value=i[1])
+            redis_conn.hset(name=name, key=i[0], value=i[1])

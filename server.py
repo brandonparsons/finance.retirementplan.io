@@ -11,7 +11,6 @@ from flask import request
 from flask import jsonify
 from flask import abort
 
-from flask_environments import Environments
 from flask_sslify import SSLify
 
 from lib.efficient_frontier import efficient_frontier
@@ -23,12 +22,12 @@ from lib.efficient_frontier import efficient_frontier
 
 app = Flask(__name__)
 
-env = Environments(app)
-env.from_yaml(os.path.join(os.path.dirname(__file__), 'config', 'config.yml'))
+app.config['DEBUG'] = os.environ.get('DEBUG', False)
 
-sslify = SSLify(app)
+if not app.config['DEBUG']:
+    sslify = SSLify(app)
 
-redis_url   = os.getenv('REDIS_URL', app.config['REDIS_URL'])
+redis_url   = os.environ['REDIS_URL']
 redis_conn  = redis.StrictRedis.from_url(redis_url)
 
 
@@ -37,7 +36,7 @@ redis_conn  = redis.StrictRedis.from_url(redis_url)
 ###################
 
 def check_for_authorization():
-  auth_token = os.getenv('AUTH_TOKEN', app.config['AUTH_TOKEN'])
+  auth_token = os.environ['AUTH_TOKEN']
   provided_token = request.headers.get('Authorization') or request.args.get('auth_token')
   if (provided_token and provided_token == auth_token):
     return True

@@ -1,12 +1,10 @@
 COMMON: &common
   DEBUG: False
   TESTING: False
-  BLOCK_SSLIFY: False
 
 DEVELOPMENT: &development
   <<: *common
   DEBUG: True
-  BLOCK_SSLIFY: True
   REDIS_URL: redis://localhost:6379/6
   AUTH_TOKEN: abcd
 

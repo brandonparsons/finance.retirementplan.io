@@ -26,6 +26,8 @@ app = Flask(__name__)
 env = Environments(app)
 env.from_yaml(os.path.join(os.path.dirname(__file__), 'config', 'config.yml'))
 
+sslify = SSLify(app)
+
 redis_url   = os.getenv('REDIS_URL', app.config['REDIS_URL'])
 redis_conn  = redis.StrictRedis.from_url(redis_url)
 

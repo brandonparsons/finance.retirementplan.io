@@ -1,0 +1,367 @@
+[
+  {
+    "ticker": "XRE.TO",
+    "description": "iShares Capped Canadian REIT ETF",
+    "security_id": "CDN-REALESTATE"
+  },
+  {
+    "ticker": "ZRE.TO",
+    "description": "BMO Equal Weight REIT's Index ETF",
+    "security_id": "CDN-REALESTATE"
+  },
+  {
+    "ticker": "DBC",
+    "description": "PowerShares DB Commodity Index",
+    "security_id": "COMMODITIES"
+  },
+  {
+    "ticker": "GSG",
+    "description": "iShares S&P GSCI Commodity-Indexed ETF",
+    "security_id": "COMMODITIES"
+  },
+  {
+    "ticker": "USCI",
+    "description": "United States Commodity Index",
+    "security_id": "COMMODITIES"
+  },
+  {
+    "ticker": "IFGL",
+    "description": "iShares FTSE EPRA\/NAREIT Developed Real Estate",
+    "security_id": "INTL-REALESTATE"
+  },
+  {
+    "ticker": "RWO",
+    "description": "SPDR Down Jones Global Real Estate",
+    "security_id": "INTL-REALESTATE"
+  },
+  {
+    "ticker": "RWX",
+    "description": "SPDR Dow Jones International Real Estate",
+    "security_id": "INTL-REALESTATE"
+  },
+  {
+    "ticker": "WPS",
+    "description": "iShares S&P Developed (ex-U.S.) Propery",
+    "security_id": "INTL-REALESTATE"
+  },
+  {
+    "ticker": "ICF",
+    "description": "iShares Cohen & Steers Realty",
+    "security_id": "US-REALESTATE"
+  },
+  {
+    "ticker": "IYR",
+    "description": "iShares Dow Jones US Real Estate",
+    "security_id": "US-REALESTATE"
+  },
+  {
+    "ticker": "RWR",
+    "description": "SPDR Dow Jones REIT",
+    "security_id": "US-REALESTATE"
+  },
+  {
+    "ticker": "VNQ",
+    "description": "Vanguard REIT Index ETF",
+    "security_id": "US-REALESTATE"
+  },
+  {
+    "ticker": "XLB",
+    "description": "iShares DEX Long Term Bond ETF",
+    "security_id": "CDN-LONG-BOND"
+  },
+  {
+    "ticker": "ZLC.TO",
+    "description": "BMO Long-term Corporate Bond Index ETF",
+    "security_id": "CDN-LONG-BOND"
+  },
+  {
+    "ticker": "VSB",
+    "description": "Vanguard Canadian Short term bond index",
+    "security_id": "CDN-SHORT-BOND"
+  },
+  {
+    "ticker": "XSB.TO",
+    "description": "iShares DEX Short Term Bond ETF",
+    "security_id": "CDN-SHORT-BOND"
+  },
+  {
+    "ticker": "ZCS.TO",
+    "description": "BMO Short Term Corporate Bond Index ETF",
+    "security_id": "CDN-SHORT-BOND"
+  },
+  {
+    "ticker": "BWX",
+    "description": "SPDR Barclays Capital International Treasury Bond ETF",
+    "security_id": "INTL-BOND"
+  },
+  {
+    "ticker": "BWZ",
+    "description": "SPDR Barclays Capital Short-term International Treasury Bond ETF",
+    "security_id": "INTL-BOND"
+  },
+  {
+    "ticker": "IGOV",
+    "description": "iShares S&P\/Citi International Treasury Bond ETF",
+    "security_id": "INTL-BOND"
+  },
+  {
+    "ticker": "ISHG",
+    "description": "iShares S&P\/Citi 1-3 Yr International Treasury Bond ETF",
+    "security_id": "INTL-BOND"
+  },
+  {
+    "ticker": "CFT",
+    "description": "iShares Barclays Credit Bond ETF",
+    "security_id": "US-MED-CORP-BOND"
+  },
+  {
+    "ticker": "CIU",
+    "description": "iShares Barclays Intermediate Credit Bond Fund ETF",
+    "security_id": "US-MED-CORP-BOND"
+  },
+  {
+    "ticker": "CORP",
+    "description": "PIMCO Investment Grade Corporate Bond ETF",
+    "security_id": "US-MED-CORP-BOND"
+  },
+  {
+    "ticker": "ITR",
+    "description": "SPDR Barclays Cap Intermediate Term Bond ETF",
+    "security_id": "US-MED-CORP-BOND"
+  },
+  {
+    "ticker": "VCIT",
+    "description": "Vanguard Intermediate Term Corporate Bond Index ETF",
+    "security_id": "US-MED-CORP-BOND"
+  },
+  {
+    "ticker": "FIVZ",
+    "description": "PIMCO 3-7 Year Treasury Index Fund",
+    "security_id": "US-MED-GOV-BOND"
+  },
+  {
+    "ticker": "IEF",
+    "description": "iShares Barclays 7-10 Year Treasury Bond Fund",
+    "security_id": "US-MED-GOV-BOND"
+  },
+  {
+    "ticker": "IEI",
+    "description": "iShares Barclays 3-7 Year Treasury Bond Fund",
+    "security_id": "US-MED-GOV-BOND"
+  },
+  {
+    "ticker": "ITE",
+    "description": "SPDR Barclays Capital Intermediate-term Treasury ETF",
+    "security_id": "US-MED-GOV-BOND"
+  },
+  {
+    "ticker": "VFITX",
+    "description": "Vanguard Intermediate-Term Treasury ETF",
+    "security_id": "US-MED-GOV-BOND"
+  },
+  {
+    "ticker": "VGIT",
+    "description": "Vangaurd Intermediate Term Government Bond ETF",
+    "security_id": "US-MED-GOV-BOND"
+  },
+  {
+    "ticker": "LQD",
+    "description": "iShares IBoxx U.S. Investment Grade Corporate Bond ETF",
+    "security_id": "US-LONG-CORP-BOND"
+  },
+  {
+    "ticker": "LWC",
+    "description": "SPDR Barclays Capital Long Term Corporate Bond ETF",
+    "security_id": "US-LONG-CORP-BOND"
+  },
+  {
+    "ticker": "VCLT",
+    "description": "Vanguard Long-Term Corporate Bond ETF",
+    "security_id": "US-LONG-CORP-BOND"
+  },
+  {
+    "ticker": "EDV",
+    "description": "Vanguard Extended Duration Bond ETF",
+    "security_id": "US-LONG-GOV-BOND"
+  },
+  {
+    "ticker": "TLH",
+    "description": "iShares Lehman 10-20 Year Treasury Bond ETF",
+    "security_id": "US-LONG-GOV-BOND"
+  },
+  {
+    "ticker": "TLO",
+    "description": "SPDR Lehman Long-term Treasury Bond ETF",
+    "security_id": "US-LONG-GOV-BOND"
+  },
+  {
+    "ticker": "TLT",
+    "description": "iShares Barclays 20+ Year Treasury Bond ETF",
+    "security_id": "US-LONG-GOV-BOND"
+  },
+  {
+    "ticker": "VGLT",
+    "description": "Vanguard Long-term Government Bond ETF",
+    "security_id": "US-LONG-GOV-BOND"
+  },
+  {
+    "ticker": "VUSTX",
+    "description": "Vanguard Long-Term Treasury ETF",
+    "security_id": "US-LONG-GOV-BOND"
+  },
+  {
+    "ticker": "CSJ",
+    "description": "iShares Barclays 1-3 Year Credit Bond ETF",
+    "security_id": "US-SHORT-CORP-BOND"
+  },
+  {
+    "ticker": "SCPB",
+    "description": "SPDR Barclays Capital Short Term Bond ETF",
+    "security_id": "US-SHORT-CORP-BOND"
+  },
+  {
+    "ticker": "VCSH",
+    "description": "Vanguard Short-Term Corporate Bond Index",
+    "security_id": "US-SHORT-CORP-BOND"
+  },
+  {
+    "ticker": "BIL",
+    "description": "SPDR Lehman 1-3 Month T-Bill ETF",
+    "security_id": "US-SHORT-GOVT-BOND"
+  },
+  {
+    "ticker": "SHV",
+    "description": "iShares Barclays Short-term Treasury Bond Fund",
+    "security_id": "US-SHORT-GOVT-BOND"
+  },
+  {
+    "ticker": "SHY",
+    "description": "iShares Barclays 1-3 Year Treasury Bond Fund",
+    "security_id": "US-SHORT-GOVT-BOND"
+  },
+  {
+    "ticker": "VFISX",
+    "description": "Vanguard Short-Term Treasury ETF",
+    "security_id": "US-SHORT-GOVT-BOND"
+  },
+  {
+    "ticker": "VGSH",
+    "description": "Vanguard Short-term Government Bond ETF",
+    "security_id": "US-SHORT-GOVT-BOND"
+  },
+  {
+    "ticker": "EWC",
+    "description": "iShares MSCI Canada ETF",
+    "security_id": "CDN-STOCK"
+  },
+  {
+    "ticker": "HXT.TO",
+    "description": "Horizons S&P TSX60 Index ETF",
+    "security_id": "CDN-STOCK"
+  },
+  {
+    "ticker": "VCE.TO",
+    "description": "Vanguard MSCI Canada Index ETF",
+    "security_id": "CDN-STOCK"
+  },
+  {
+    "ticker": "XIU.TO",
+    "description": "iShares S&P\/TSX 60 Index",
+    "security_id": "CDN-STOCK"
+  },
+  {
+    "ticker": "EEM",
+    "description": "iShares Emerging Markets ETF",
+    "security_id": "EMERG-STOCK"
+  },
+  {
+    "ticker": "SCHE",
+    "description": "Schwab Emerging Markets",
+    "security_id": "EMERG-STOCK"
+  },
+  {
+    "ticker": "VEE.TO",
+    "description": "Vanguard Emerging Markets Index",
+    "security_id": "EMERG-STOCK"
+  },
+  {
+    "ticker": "VWO",
+    "description": "Vanguard MSCI Emerging Markets",
+    "security_id": "EMERG-STOCK"
+  },
+  {
+    "ticker": "EFA",
+    "description": "iShares MSCI EAFE Index ETF",
+    "security_id": "INTL-STOCK"
+  },
+  {
+    "ticker": "SCHF",
+    "description": "Schwab International Equity",
+    "security_id": "INTL-STOCK"
+  },
+  {
+    "ticker": "VEA",
+    "description": "Vanguard MSCI EAFE Index",
+    "security_id": "INTL-STOCK"
+  },
+  {
+    "ticker": "VEF.TO",
+    "description": "Vanguard MSCI EAFE Index (CAD hedged)",
+    "security_id": "INTL-STOCK"
+  },
+  {
+    "ticker": "IVV",
+    "description": "iShares S&P 500 Index ETF",
+    "security_id": "US-LGCAP-STOCK"
+  },
+  {
+    "ticker": "IWB",
+    "description": "iShares Russell 1000 Index ETF",
+    "security_id": "US-LGCAP-STOCK"
+  },
+  {
+    "ticker": "SCHX",
+    "description": "Schwab U.S. Large Cap",
+    "security_id": "US-LGCAP-STOCK"
+  },
+  {
+    "ticker": "SPY",
+    "description": "SPDR S&P 500 Index ETF",
+    "security_id": "US-LGCAP-STOCK"
+  },
+  {
+    "ticker": "VFINX",
+    "description": "Vanguard S&P 500 Index ETF",
+    "security_id": "US-LGCAP-STOCK"
+  },
+  {
+    "ticker": "VUS.TO",
+    "description": "Vanguard MSCI U.S. Broad Market Index",
+    "security_id": "US-LGCAP-STOCK"
+  },
+  {
+    "ticker": "IJR",
+    "description": "iShares S&P SmallCap 600 Index",
+    "security_id": "US-SMCAP-STOCK"
+  },
+  {
+    "ticker": "IWM",
+    "description": "iShares Russell 2000 Index ETF",
+    "security_id": "US-SMCAP-STOCK"
+  },
+  {
+    "ticker": "NAESX",
+    "description": "Vanguard Small Cap Index ETF",
+    "security_id": "US-SMCAP-STOCK"
+  },
+  {
+    "ticker": "SCHA",
+    "description": "Schwab U.S. Small Cap ETF",
+    "security_id": "US-SMCAP-STOCK"
+  },
+  {
+    "ticker": "VB",
+    "description": "Vanguard Small-Cap ETF",
+    "security_id": "US-SMCAP-STOCK"
+  }
+]

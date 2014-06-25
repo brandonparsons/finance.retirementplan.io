@@ -1,0 +1,110 @@
+[
+  {
+    "id": "CDN-REALESTATE",
+    "asset_class": "Canadian Real Estate",
+    "asset_type": "alternative",
+    "representative_ticker": "XRE.TO"
+  },
+  {
+    "id": "COMMODITIES",
+    "asset_class": "Commodities",
+    "asset_type": "alternative",
+    "representative_ticker": "GSG"
+  },
+  {
+    "id": "US-LGCAP-STOCK",
+    "asset_class": "U.S. Large-cap Equities",
+    "asset_type": "stock",
+    "representative_ticker": "VFINX"
+  },
+  {
+    "id": "US-LONG-GOV-BOND",
+    "asset_class": "U.S. Long-term Government Bonds",
+    "asset_type": "bond",
+    "representative_ticker": "VUSTX"
+  },
+  {
+    "id": "INTL-REALESTATE",
+    "asset_class": "International Real Estate",
+    "asset_type": "alternative",
+    "representative_ticker": "RWX"
+  },
+  {
+    "id": "US-REALESTATE",
+    "asset_class": "U.S. Real Estate",
+    "asset_type": "alternative",
+    "representative_ticker": "IYR"
+  },
+  {
+    "id": "US-SHORT-CORP-BOND",
+    "asset_class": "U.S. Short-term Corporate Bonds",
+    "asset_type": "bond",
+    "representative_ticker": "CSJ"
+  },
+  {
+    "id": "CDN-LONG-BOND",
+    "asset_class": "Canadian Long-term Bonds",
+    "asset_type": "bond",
+    "representative_ticker": "XLB"
+  },
+  {
+    "id": "CDN-SHORT-BOND",
+    "asset_class": "Canadian Short-term Bonds",
+    "asset_type": "bond",
+    "representative_ticker": "XSB.TO"
+  },
+  {
+    "id": "US-SMCAP-STOCK",
+    "asset_class": "U.S. Small-cap Equities",
+    "asset_type": "stock",
+    "representative_ticker": "NAESX"
+  },
+  {
+    "id": "INTL-BOND",
+    "asset_class": "International Bonds",
+    "asset_type": "bond",
+    "representative_ticker": "BWX"
+  },
+  {
+    "id": "US-SHORT-GOVT-BOND",
+    "asset_class": "U.S. Short-term Government Bonds",
+    "asset_type": "bond",
+    "representative_ticker": "VFISX"
+  },
+  {
+    "id": "US-MED-CORP-BOND",
+    "asset_class": "U.S. Intermediate-term Corporate Bonds",
+    "asset_type": "bond",
+    "representative_ticker": "CIU"
+  },
+  {
+    "id": "CDN-STOCK",
+    "asset_class": "Canadian Equities",
+    "asset_type": "stock",
+    "representative_ticker": "EWC"
+  },
+  {
+    "id": "US-MED-GOV-BOND",
+    "asset_class": "U.S. Intermediate-term Government Bonds",
+    "asset_type": "bond",
+    "representative_ticker": "VFITX"
+  },
+  {
+    "id": "EMERG-STOCK",
+    "asset_class": "Emerging Markets Equities",
+    "asset_type": "stock",
+    "representative_ticker": "EEM"
+  },
+  {
+    "id": "US-LONG-CORP-BOND",
+    "asset_class": "U.S. Long-term Corporate Bonds",
+    "asset_type": "bond",
+    "representative_ticker": "LQD"
+  },
+  {
+    "id": "INTL-STOCK",
+    "asset_class": "International Developed Equities (EAFE)",
+    "asset_type": "stock",
+    "representative_ticker": "EFA"
+  }
+]

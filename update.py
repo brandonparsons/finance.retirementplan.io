@@ -61,18 +61,26 @@ std_dev_returns = std_dev_returns.sort_index()
 covariance_matrix.sort_index(axis=0, inplace=True)
 covariance_matrix.sort_index(axis=1, inplace=True)
 
+# Create formatted asset data to be returned from /assets. Put it in an object
+# as otherwise python won't want to load it.
+formatted_asset_data = { "assets": [ { "id": el['id'], "asset_class": el['asset_class'], "asset_type": el['asset_type'] } for el in assets ] }
+
 
 #################
 
-# Save data to redis
+# Save data to redis. Execute as multi to keep data consistency
+pipe = redis_conn.pipeline()
+pipe.multi()
 
-redis_conn.set(name='mean_returns',      value=mean_returns.to_json())
-redis_conn.set(name='std_dev_returns',   value=std_dev_returns.to_json())
-redis_conn.set(name='covariance_matrix', value=covariance_matrix.to_json())
+##
+pipe.set(name='mean_returns',      value=mean_returns.to_json())
+pipe.set(name='std_dev_returns',   value=std_dev_returns.to_json())
+pipe.set(name='covariance_matrix', value=covariance_matrix.to_json())
+##
+pipe.set(name='asset_list', value=json.dumps(formatted_asset_data))
+##
 
-# Put it in an object as otherwise python won't want to load it
-formatted_asset_data = { "assets": [ { "id": el['id'], "asset_class": el['asset_class'], "asset_type": el['asset_type'] } for el in assets ] }
-redis_conn.set(name='asset_list', value=json.dumps(formatted_asset_data))
+pipe.execute()
 
 
 #################

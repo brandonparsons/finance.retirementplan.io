@@ -3,6 +3,7 @@
 ###########
 
 import os
+import json
 import redis
 import pandas as pd
 
@@ -27,8 +28,7 @@ app.config['DEBUG'] = os.environ.get('DEBUG', False)
 if not app.config['DEBUG']:
     sslify = SSLify(app)
 
-redis_url   = os.environ['REDIS_URL']
-redis_conn  = redis.StrictRedis.from_url(redis_url)
+redis_conn = redis.StrictRedis.from_url(os.environ['REDIS_URL'])
 
 
 ###################
@@ -36,39 +36,56 @@ redis_conn  = redis.StrictRedis.from_url(redis_url)
 ###################
 
 def check_for_authorization():
-  auth_token = os.environ['AUTH_TOKEN']
-  provided_token = request.headers.get('Authorization') or request.args.get('auth_token')
-  if (provided_token and provided_token == auth_token):
-    return True
-  else:
-    return abort(403)
+    auth_token = os.environ['AUTH_TOKEN']
+    provided_token = request.headers.get('Authorization') or request.args.get('auth_token')
+    if (provided_token and provided_token == auth_token):
+        return True
+    else:
+        return abort(403)
 
-def covariance_matrix(tickers):
+def covariance_matrix(asset_ids):
     # Covariance matrix is a *DataFrame*
     json = redis_conn.get('covariance_matrix')
-    df = pd.io.json.read_json(json)
+    df   = pd.io.json.read_json(json)
 
-    tickers_set = set(tickers)
-    available_tickers_set = set(df.index.values)
-    tickers_to_eliminate = list(available_tickers_set - tickers_set)
+    asset_ids_set             = set(asset_ids)
+    available_asset_ids_set   = set(df.index.values)
+    asset_ids_to_eliminate    = list(available_asset_ids_set - asset_ids_set)
 
-    return df.drop(tickers_to_eliminate, axis=0).drop(tickers_to_eliminate, axis=1)
+    return df.drop(asset_ids_to_eliminate, axis=0).drop(asset_ids_to_eliminate, axis=1)
 
-def mean_returns(tickers):
+def mean_returns(asset_ids):
     # Mean returns is a *Series*
     json = redis_conn.get('mean_returns')
-    df = pd.io.json.read_json(json, typ='series')
+    df   = pd.io.json.read_json(json, typ='series')
 
-    tickers_set = set(tickers)
-    available_tickers_set = set(df.index.values)
-    tickers_to_eliminate = list(available_tickers_set - tickers_set)
+    asset_ids_set             = set(asset_ids)
+    available_asset_ids_set   = set(df.index.values)
+    asset_ids_to_eliminate    = list(available_asset_ids_set - asset_ids_set)
 
-    return df.drop(tickers_to_eliminate)
+    return df.drop(asset_ids_to_eliminate)
+
+def build_efficient_frontier_for(asset_ids):
+    means    = mean_returns(asset_ids)
+    covars   = covariance_matrix(asset_ids)
+    return efficient_frontier(asset_ids, means, covars)
 
 
 ##########
 # ROUTES #
 ##########
+
+@app.route('/assets', methods=['GET'])
+def assets_route():
+    check_for_authorization()
+    return jsonify( json.loads(redis_conn.get('asset_list')) )
+
+@app.route('/calc', methods=["POST"])
+def cla_calc_route():
+    check_for_authorization()
+    asset_ids = (request.json)['asset_ids']
+    app.logger.info("Received CLA calc request for: %s" % asset_ids)
+    return jsonify(build_efficient_frontier_for(asset_ids))
 
 @app.route('/')
 def root():
@@ -77,20 +94,6 @@ def root():
 @app.route('/health')
 def health():
     return "OK", 200
-
-@app.route('/calc', methods=["POST"])
-def cla_calc_route():
-    check_for_authorization()
-
-    j       = request.json
-    tickers = j['tickers']
-
-    app.logger.info("Received CLA calc request for tickers: %s" % tickers)
-
-    means   = mean_returns(tickers)
-    covars  = covariance_matrix(tickers)
-
-    return jsonify( efficient_frontier(tickers, means, covars) )
 
 
 ##########

@@ -10,29 +10,34 @@ def upper_bounds(length):
     return np.ones(length).reshape(length, 1)
 
 def format_mean_returns_dataframe(df, length):
-    return df.sort_index().values.reshape(length, 1)
+    # # No longer need to sort the index - already doing that
+    # return df.sort_index().values.reshape(length, 1)
+    return df.values.reshape(length, 1)
 
 def format_covars_dataframe(df):
-    return df.sort(axis=0).sort(axis=1).values
+    # # No longer need to sort the index - already doing that
+    # return df.sort(axis=0).sort(axis=1).values
+    return df.values
 
-def format_resulting_weights(weights, tickers):
+def format_resulting_weights(weights, asset_ids):
     formatted_weights = [ entry[0] for entry in weights ]
 
     allocations = {}
     for i, weight in enumerate(formatted_weights):
-        allocations[tickers[i]] = weight
+        allocations[asset_ids[i]] = weight
 
     return allocations
 
 #######
 
-def efficient_frontier(tickers, mean_returns, covariance_matrix):
+def efficient_frontier(asset_ids, mean_returns, covariance_matrix):
     # Format data
-    number_of_tickers = mean_returns.size
-    means   = format_mean_returns_dataframe(mean_returns, number_of_tickers)
+
+    number_of_asset_ids = mean_returns.size
+    means   = format_mean_returns_dataframe(mean_returns, number_of_asset_ids)
     covars  = format_covars_dataframe(covariance_matrix)
-    lB      = lower_bounds(number_of_tickers)
-    uB      = upper_bounds(number_of_tickers)
+    lB      = lower_bounds(number_of_asset_ids)
+    uB      = upper_bounds(number_of_asset_ids)
 
     # Solve critical line algorithm
     cla = CLA(means, covars, lB, uB)
@@ -56,7 +61,7 @@ def efficient_frontier(tickers, mean_returns, covariance_matrix):
 
         allocations = {}
         for i, weight in enumerate(allocation):
-          allocations[tickers[i]] = weight
+          allocations[asset_ids[i]] = weight
 
         obj['allocations']  = allocations
 
@@ -64,7 +69,7 @@ def efficient_frontier(tickers, mean_returns, covariance_matrix):
 
     # Add the minimum variance portfolio
     var, weights = cla.getMinVar()
-    allocations = format_resulting_weights(weights, tickers)
+    allocations = format_resulting_weights(weights, asset_ids)
 
     min_var_port = {
         "mu": np.dot(weights.T, means)[0,0],
@@ -74,15 +79,13 @@ def efficient_frontier(tickers, mean_returns, covariance_matrix):
 
     # Add the maximum sharpe ratio portfolio
     sr, weights = cla.getMaxSR()
-    allocations = format_resulting_weights(weights, tickers)
+    allocations = format_resulting_weights(weights, asset_ids)
 
     max_sr_port = {
         "mu": np.dot(weights.T, means)[0,0],
         "sigma": np.dot(weights.T, np.dot(covars, weights))[0,0]**0.5,
         "allocations": allocations
     }
-
-    # import pdb; pdb.set_trace()
 
     # Return results
     return {

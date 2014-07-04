@@ -1,7 +1,9 @@
 #!/bin/sh
 
 if [ "$FLASK_ENV" == "development" ]; then
-    python server.py
+    DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    PARENTDIR="$(dirname "$DIR")"
+    $PARENTDIR/venv/bin/python server.py
 else
     gunicorn server:app -w 3
 fi

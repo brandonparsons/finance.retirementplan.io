@@ -25,14 +25,14 @@ assets  = load_json_data.get_assets()
 # Create formatted asset data to be returned from /assets. Put it in an object
 # as otherwise python won't want to load it.
 def asset_without_representative_ticker(asset):
-  tmp = asset.copy()
-  del tmp['representative_ticker']
-  return tmp
+    tmp = asset.copy()
+    del tmp['representative_ticker']
+    return tmp
 
 formatted_asset_data = {
-  "assets": [
-    asset_without_representative_ticker(el) for el in assets
-  ]
+    "assets": [
+        asset_without_representative_ticker(el) for el in assets
+    ]
 }
 
 #################
@@ -50,18 +50,18 @@ mean_returns, std_dev_returns, covariance_matrix = stats.generate_stats(prices)
 etfs = load_json_data.get_etfs()
 
 def slugize_ticker(ticker):
-  return ticker.replace('.', '-').upper()
+    return ticker.replace('.', '-').upper()
 
 def add_id_to_etf(etf):
-  etf['id'] = slugize_ticker(etf['ticker'])
-  return etf
+    etf['id'] = slugize_ticker(etf['ticker'])
+    return etf
 
 # Create formatted etf data to be returned from /etfs. Put it in an object
 # as otherwise python won't want to load it.
 formatted_etfs = {
-  "etfs": [
-    add_id_to_etf(etf) for etf in etfs
-  ]
+    "etfs": [
+        add_id_to_etf(etf) for etf in etfs
+    ]
 }
 
 #################

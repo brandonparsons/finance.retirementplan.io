@@ -80,6 +80,11 @@ def assets_route():
     check_for_authorization()
     return jsonify( json.loads(redis_conn.get('asset_list')) )
 
+@app.route('/etfs', methods=['GET'])
+def etfs_route():
+    check_for_authorization()
+    return jsonify( json.loads(redis_conn.get('etf_list')) )
+
 @app.route('/calc', methods=["POST"])
 def cla_calc_route():
     check_for_authorization()

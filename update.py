@@ -16,19 +16,53 @@ if redis_url is None:
     raise KeyError("%s not present" % "REDIS_URL")
 redis_conn  = redis.StrictRedis.from_url(redis_url)
 
+#################
+
+# Load and format asset classes
+
+assets  = load_json_data.get_assets()
+
+# Create formatted asset data to be returned from /assets. Put it in an object
+# as otherwise python won't want to load it.
+def asset_without_representative_ticker(asset):
+  tmp = asset.copy()
+  del tmp['representative_ticker']
+  return tmp
+
+formatted_asset_data = {
+  "assets": [
+    asset_without_representative_ticker(el) for el in assets
+  ]
+}
 
 #################
 
-# Loads the overall assets/securities, not the individual etfs
-assets  = load_json_data.get_assets()
-tickers = [ el['representative_ticker'] for el in assets ]
-
 # Get prices from external data source
+tickers = [ el['representative_ticker'] for el in assets ]
 prices = source_data.get_prices(tickers)
 
 # Crunch statistics
 mean_returns, std_dev_returns, covariance_matrix = stats.generate_stats(prices)
 
+#################
+
+# Load and format the ETFs as well
+etfs = load_json_data.get_etfs()
+
+def slugize_ticker(ticker):
+  return ticker.replace('.', '-').upper()
+
+def add_id_to_etf(etf):
+  etf['id'] = slugize_ticker(etf['ticker'])
+  return etf
+
+# Create formatted etf data to be returned from /etfs. Put it in an object
+# as otherwise python won't want to load it.
+formatted_etfs = {
+  "etfs": [
+    add_id_to_etf(etf) for etf in etfs
+  ]
+}
 
 #################
 
@@ -61,11 +95,6 @@ std_dev_returns = std_dev_returns.sort_index()
 covariance_matrix.sort_index(axis=0, inplace=True)
 covariance_matrix.sort_index(axis=1, inplace=True)
 
-# Create formatted asset data to be returned from /assets. Put it in an object
-# as otherwise python won't want to load it.
-formatted_asset_data = { "assets": [ { "id": el['id'], "asset_class": el['asset_class'], "asset_type": el['asset_type'] } for el in assets ] }
-
-
 #################
 
 # Save data to redis. Execute as multi to keep data consistency
@@ -78,10 +107,10 @@ pipe.set(name='std_dev_returns',   value=std_dev_returns.to_json())
 pipe.set(name='covariance_matrix', value=covariance_matrix.to_json())
 ##
 pipe.set(name='asset_list', value=json.dumps(formatted_asset_data))
+pipe.set(name='etf_list', value=json.dumps(formatted_etfs))
 ##
 
 pipe.execute()
-
 
 #################
 

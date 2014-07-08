@@ -1,6 +1,8 @@
 import os
 import json
 import redis
+import pandas as pd
+import numpy as np
 
 import lib.load_json_data as load_json_data
 import lib.source_data as source_data
@@ -39,6 +41,8 @@ formatted_asset_data = {
 
 # Get prices from external data source
 tickers = [ el['representative_ticker'] for el in assets ]
+tickers.sort() # Sort as we are sorting means/covars/etc. Everything needs to be sorted so we treat things in the right order
+
 prices = source_data.get_prices(tickers)
 
 # Crunch statistics
@@ -69,14 +73,6 @@ formatted_etfs = {
 # Before we store the data into redis, swap the tickers for asset IDs so that
 # the whole algorithm is ticker-independent
 
-# Sort everything so we can be sure we are replacing in the correct order
-mean_returns    = mean_returns.sort_index()
-std_dev_returns = std_dev_returns.sort_index()
-covariance_matrix.sort_index(axis=0, inplace=True)
-covariance_matrix.sort_index(axis=1, inplace=True)
-tickers.sort()
-
-
 # Build up the corresponding list of asset-ids to replace with
 replacement_values = []
 for ticker in tickers:
@@ -84,16 +80,21 @@ for ticker in tickers:
     asset_dict = assets[relevant_asset_dict_index]
     replacement_values.append(asset_dict['id'])
 
-mean_returns.index        = replacement_values
-std_dev_returns.index     = replacement_values
-covariance_matrix.index   = replacement_values
-covariance_matrix.columns = replacement_values
+mean_returns.index              = replacement_values
+std_dev_returns.index           = replacement_values
+covariance_matrix.index         = replacement_values
+covariance_matrix.columns       = replacement_values
 
 # Re-sort the newly renamed dataframes/series
 mean_returns    = mean_returns.sort_index()
 std_dev_returns = std_dev_returns.sort_index()
 covariance_matrix.sort_index(axis=0, inplace=True)
 covariance_matrix.sort_index(axis=1, inplace=True)
+
+cholesky_decomposition          = pd.DataFrame(np.linalg.cholesky(covariance_matrix))
+cholesky_decomposition.index    = covariance_matrix.index
+cholesky_decomposition.columns  = covariance_matrix.columns
+
 
 #################
 
@@ -102,9 +103,10 @@ pipe = redis_conn.pipeline()
 pipe.multi()
 
 ##
-pipe.set(name='mean_returns',      value=mean_returns.to_json())
-pipe.set(name='std_dev_returns',   value=std_dev_returns.to_json())
-pipe.set(name='covariance_matrix', value=covariance_matrix.to_json())
+pipe.set(name='mean_returns',           value=mean_returns.to_json())
+pipe.set(name='std_dev_returns',        value=std_dev_returns.to_json())
+pipe.set(name='covariance_matrix',      value=covariance_matrix.to_json())
+pipe.set(name='cholesky_decomposition', value=cholesky_decomposition.to_json())
 ##
 pipe.set(name='asset_list', value=json.dumps(formatted_asset_data))
 pipe.set(name='etf_list', value=json.dumps(formatted_etfs))

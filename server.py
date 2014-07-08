@@ -9,6 +9,7 @@ import pandas as pd
 
 from flask import Flask
 from flask import request
+from flask import Response
 from flask import jsonify
 from flask import abort
 
@@ -43,9 +44,32 @@ def check_for_authorization():
     else:
         return abort(403)
 
+def get_key_in_json(key, json):
+    if json is None:
+        return abort(400)
+    if key not in json:
+        return abort(422)
+    return json[key]
+
+
+######################
+# APP HELPER METHODS #
+######################
+
 def covariance_matrix(asset_ids):
     # Covariance matrix is a *DataFrame*
     json = redis_conn.get('covariance_matrix')
+    df   = pd.io.json.read_json(json)
+
+    asset_ids_set             = set(asset_ids)
+    available_asset_ids_set   = set(df.index.values)
+    asset_ids_to_eliminate    = list(available_asset_ids_set - asset_ids_set)
+
+    return df.drop(asset_ids_to_eliminate, axis=0).drop(asset_ids_to_eliminate, axis=1)
+
+def cholesky_decomposition(asset_ids):
+    # Cholesky decomp matrix is a *DataFrame*
+    json = redis_conn.get('cholesky_decomposition')
     df   = pd.io.json.read_json(json)
 
     asset_ids_set             = set(asset_ids)
@@ -75,6 +99,18 @@ def build_efficient_frontier_for(asset_ids):
 # ROUTES #
 ##########
 
+# Health check routes
+
+@app.route('/')
+def root():
+    return 'Hello World!'
+
+@app.route('/health')
+def health():
+    return "OK", 200
+
+# App routes
+
 @app.route('/assets', methods=['GET'])
 def assets_route():
     check_for_authorization()
@@ -85,20 +121,21 @@ def etfs_route():
     check_for_authorization()
     return jsonify( json.loads(redis_conn.get('etf_list')) )
 
+@app.route('/cholesky', methods=['GET'])
+def cholesky_route():
+    check_for_authorization()
+    asset_ids = get_key_in_json('asset_ids', request.json)
+    app.logger.info("Received cholesky request for: %s" % asset_ids)
+    cholesky_dataframe_as_array = cholesky_decomposition(asset_ids).values
+    as_flat_array = cholesky_dataframe_as_array.flatten().tolist() # Just do .tolist() if you want it as an array of arrays
+    return jsonify( { "cholesky_decomposition": as_flat_array } )
+
 @app.route('/calc', methods=["POST"])
 def cla_calc_route():
     check_for_authorization()
-    asset_ids = (request.json)['asset_ids']
+    asset_ids = get_key_in_json('asset_ids', request.json)
     app.logger.info("Received CLA calc request for: %s" % asset_ids)
     return jsonify(build_efficient_frontier_for(asset_ids))
-
-@app.route('/')
-def root():
-    return 'Hello World!'
-
-@app.route('/health')
-def health():
-    return "OK", 200
 
 
 ##########

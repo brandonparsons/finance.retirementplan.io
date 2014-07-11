@@ -13,11 +13,10 @@ def getTickerData(ticker):
     """
     return web.DataReader(ticker, data_source, start, end)
 
-def get_prices(tickers, use_adjusted=True, resample=False):
+def get_prices(tickers, use_adjusted=True):
     """
     :param tickers: list of tickers as strings
     :param use_adjusted: boolean, whether to use the adjusted close if available or not
-    :param resample: false if no resampling. Otherwise 'W', 'M' (weekly/monthly)
     :return: pandas DataFrame of asset prices
     """
 
@@ -46,8 +45,8 @@ def get_prices(tickers, use_adjusted=True, resample=False):
     # the same time period.
     df = df.dropna()
 
-    # If you want to work with weekly or monthly prices:
-    if resample:
-        df = df.resample(resample) # 'W' for weekly, 'M' for monthly
+    # Resample to monthly. We only have monthly data for real estate, and we
+    # are doing monthly simulations anyway as weekly gets to resource-intensive
+    df = df.resample('M', how='mean')
 
     return df

@@ -121,9 +121,13 @@ def build_efficient_frontier_for(asset_ids):
         means    = mean_returns(asset_ids)
         covars   = covariance_matrix(asset_ids)
         frontier = efficient_frontier(asset_ids, means, covars)
+        # FIXME: You are json dumping to store in memcache, marshalling to return
+        # to request, then flask-jsonifying back again. Better way? For later......
         cache.set(cache_key, json.dumps(frontier))
     else:
         app.logger.info("[Cache Hit] Retreiving efficient frontier for: %s" % asset_ids)
+        # FIXME: You are json dumping to store in memcache, marshalling to return
+        # to request, then flask-jsonifying back again. Better way? For later......
         frontier = json.loads(val)
     return frontier
 

@@ -6,6 +6,7 @@ import os
 import json
 import redis
 import pandas as pd
+import bmemcached
 
 from flask import Flask
 from flask import request
@@ -39,16 +40,13 @@ if not app.config['DEBUG']:
     sslify = SSLify(app)
 
 if app.config['DEBUG']:
-    cache = Cache(app,config={'CACHE_TYPE': 'null'})
+    cache = bmemcached.Client(servers=['127.0.0.1:11211'])
 else:
-    cache = Cache(app, config={
-      'CACHE_TYPE': 'memcached',
-      'CACHE_MEMCACHED_SERVERS':  [ os.environ['MEMCACHEDCLOUD_SERVERS'] ],
-      'CACHE_MEMCACHED_USERNAME': os.environ['MEMCACHEDCLOUD_USERNAME'],
-      'CACHE_MEMCACHED_PASSWORD': os.environ['MEMCACHEDCLOUD_PASSWORD']
-    })
-    app.logger.info("Cache set to memcached:")
-    app.logger.info(cache)
+    cache = bmemcached.Client(
+                servers=os.environ['MEMCACHEDCLOUD_SERVERS'].split(","),
+                username=os.environ['MEMCACHEDCLOUD_USERNAME'],
+                password=os.environ['MEMCACHEDCLOUD_PASSWORD']
+            )
 
 redis_conn = redis.StrictRedis.from_url(os.environ['REDIS_URL'])
 
@@ -113,13 +111,19 @@ def mean_returns(asset_ids):
 
     return df.drop(asset_ids_to_eliminate)
 
-@cache.memoize()
 def build_efficient_frontier_for(asset_ids):
-    app.logger.info("[Cache Miss] Building efficient frontier for: %s" % asset_ids)
-    means    = mean_returns(asset_ids)
-    covars   = covariance_matrix(asset_ids)
-    return efficient_frontier(asset_ids, means, covars)
-
+    cache_key = "efficient_frontier/" + "-".join(asset_ids)
+    val = cache.get(cache_key)
+    if val is None:
+        app.logger.info("[Cache Miss] Building efficient frontier for: %s" % asset_ids)
+        means    = mean_returns(asset_ids)
+        covars   = covariance_matrix(asset_ids)
+        frontier = efficient_frontier(asset_ids, means, covars)
+        cache.set(cache_key, json.dumps(frontier))
+    else:
+        app.logger.info("[Cache Hit] Retreiving efficient frontier for: %s" % asset_ids)
+        frontier = json.loads(val)
+    return frontier
 
 ##########
 # ROUTES #
@@ -138,7 +142,7 @@ def health():
 @app.route('/clear_cache', methods=["GET"])
 def clear_cache():
   check_for_authorization()
-  cache.clear()
+  cache.flush_all()
   return jsonify({"success": True, "message": "Cache cleared."})
 
 

@@ -1,5 +1,6 @@
 import os
 import json
+import uuid
 import redis
 import pandas as pd
 import numpy as np
@@ -53,11 +54,11 @@ mean_returns, std_dev_returns, covariance_matrix = stats.generate_stats(prices)
 # Load and format the ETFs as well
 etfs = load_json_data.get_etfs()
 
-def slugize_ticker(ticker):
-    return ticker.replace('.', '-').upper()
+def uuid_for(ticker):
+    return uuid.uuid3(uuid.NAMESPACE_OID, ticker)
 
 def add_id_to_etf(etf):
-    etf['id'] = slugize_ticker(etf['ticker'])
+    etf['id'] = uuid_for(etf['ticker'])
     return etf
 
 # Create formatted etf data to be returned from /etfs. Put it in an object

@@ -55,8 +55,8 @@ mean_returns, std_dev_returns, covariance_matrix = stats.generate_stats(prices)
 etfs = load_json_data.get_etfs()
 
 def uuid_for(ticker):
-    uuid_for_ticker = uuid.uuid3(uuid.NAMESPACE_OID, ticker)
-    return str(uuid_for_ticker).encode('utf-8')
+    encoded = ticker.encode('utf-8')
+    return uuid.uuid5(uuid.NAMESPACE_DNS, encoded).hex
 
 def add_id_to_etf(etf):
     etf['id'] = uuid_for(etf['ticker'])

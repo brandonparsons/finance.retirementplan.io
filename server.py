@@ -27,7 +27,15 @@ app = Flask(__name__)
 
 app.config['DEBUG'] = os.environ.get('DEBUG', False)
 
+# http://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xviii-deployment-on-the-heroku-cloud
 if not app.config['DEBUG']:
+    import logging
+    stream_handler = logging.StreamHandler()
+    app.logger.addHandler(stream_handler)
+    app.logger.setLevel(logging.INFO)
+
+if not app.config['DEBUG']:
+    app.logger.info("Forcing SSL")
     sslify = SSLify(app)
 
 if app.config['DEBUG']:
@@ -39,15 +47,10 @@ else:
       'CACHE_MEMCACHED_USERNAME': os.environ['MEMCACHEDCLOUD_USERNAME'],
       'CACHE_MEMCACHED_PASSWORD': os.environ['MEMCACHEDCLOUD_PASSWORD']
     })
+    app.logger.info("Cache set to memcached:")
+    app.logger.info(cache)
 
 redis_conn = redis.StrictRedis.from_url(os.environ['REDIS_URL'])
-
-# http://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xviii-deployment-on-the-heroku-cloud
-if not app.config['DEBUG']:
-    import logging
-    stream_handler = logging.StreamHandler()
-    app.logger.addHandler(stream_handler)
-    app.logger.setLevel(logging.INFO)
 
 
 ###################
@@ -112,7 +115,7 @@ def mean_returns(asset_ids):
 
 @cache.memoize()
 def build_efficient_frontier_for(asset_ids):
-    app.logger.warning("[Cache Miss] Building efficient frontier for: %s" % asset_ids)
+    app.logger.info("[Cache Miss] Building efficient frontier for: %s" % asset_ids)
     means    = mean_returns(asset_ids)
     covars   = covariance_matrix(asset_ids)
     return efficient_frontier(asset_ids, means, covars)

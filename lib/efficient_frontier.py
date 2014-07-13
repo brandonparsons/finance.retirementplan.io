@@ -22,11 +22,11 @@ def format_covars_dataframe(df):
 def format_resulting_weights(weights, asset_ids):
     formatted_weights = [ entry[0] for entry in weights ]
 
-    allocations = {}
+    allocation = {}
     for i, weight in enumerate(formatted_weights):
-        allocations[asset_ids[i]] = weight
+        allocation[asset_ids[i]] = weight
 
-    return allocations
+    return allocation
 
 #######
 
@@ -54,37 +54,42 @@ def efficient_frontier(asset_ids, mean_returns, covariance_matrix):
 
     portfolios = []
 
-    for index, allocation in enumerate(formatted_weights):
+    for index, portfolio_allocation in enumerate(formatted_weights):
         obj = {}
-        obj['mu'] = mu[index]
-        obj['sigma'] = sigma[index]
+        obj["statistics"] = {
+            "mean_return": mu[index],
+            "std_dev": sigma[index]
+        }
 
-        allocations = {}
-        for i, weight in enumerate(allocation):
-          allocations[asset_ids[i]] = weight
-
-        obj['allocations']  = allocations
+        allocation = {}
+        for i, weight in enumerate(portfolio_allocation):
+          allocation[asset_ids[i]] = weight
+        obj["allocation"]  = allocation
 
         portfolios.append(obj)
 
     # Add the minimum variance portfolio
     var, weights = cla.getMinVar()
-    allocations = format_resulting_weights(weights, asset_ids)
+    allocation = format_resulting_weights(weights, asset_ids)
 
     min_var_port = {
-        "mu": np.dot(weights.T, means)[0,0],
-        "sigma": var[0,0],
-        "allocations": allocations
+        "allocation": allocation,
+        "statistics": {
+            "mean_return": np.dot(weights.T, means)[0,0],
+            "std_dev": var[0,0]
+        }
     }
 
     # Add the maximum sharpe ratio portfolio
     sr, weights = cla.getMaxSR()
-    allocations = format_resulting_weights(weights, asset_ids)
+    allocation = format_resulting_weights(weights, asset_ids)
 
     max_sr_port = {
-        "mu": np.dot(weights.T, means)[0,0],
-        "sigma": np.dot(weights.T, np.dot(covars, weights))[0,0]**0.5,
-        "allocations": allocations
+        "allocation": allocation,
+        "statistics": {
+            "mean_return": np.dot(weights.T, means)[0,0],
+            "std_dev": np.dot(weights.T, np.dot(covars, weights))[0,0]**0.5,
+        }
     }
 
     # Return results

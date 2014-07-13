@@ -183,7 +183,7 @@ def cholesky_route():
     as_flat_array = cholesky_dataframe_as_array.flatten().tolist() # Just do .tolist() if you want it as an array of arrays
     return jsonify( { "cholesky_decomposition": as_flat_array } )
 
-@app.route('/efficient_frontier', methods=["POST"])
+@app.route('/efficient_frontier', methods=["GET"])
 def efficient_frontier_route():
     check_for_authorization()
     asset_ids = get_key_in_json('asset_ids', request.json)

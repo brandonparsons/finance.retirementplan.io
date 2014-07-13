@@ -84,41 +84,46 @@ def efficient_frontier(asset_ids, mean_returns, covariance_matrix):
 
         portfolios.append(obj)
 
-    # Add the minimum variance portfolio
-    var, weights = cla.getMinVar()
-    allocation = format_resulting_weights(weights, asset_ids)
-    monthly_mean_return = np.dot(weights.T, means)[0,0]
-    monthly_std_dev     = var[0,0]
+    # On quick inspection of the algorithm, the minimum variance and maximum
+    # Sharpe Ratio portfolios appear to be pulled from the results - i.e. they
+    # are not NEW portfolios and don't need to be separately included unless
+    # you want to mark them for some reason.  REMOVING from the response.
 
-    min_var_port = {
-        "allocation": allocation,
-        "statistics": {
-            "mean_return": monthly_mean_return,
-            "std_dev": monthly_std_dev,
-            "annual_nominal_return": annual_nominal_return(monthly_mean_return),
-            "annual_std_dev": annual_std_dev(monthly_std_dev)
-        }
-    }
+    # # Add the minimum variance portfolio
+    # var, weights = cla.getMinVar()
+    # allocation = format_resulting_weights(weights, asset_ids)
+    # monthly_mean_return = np.dot(weights.T, means)[0,0]
+    # monthly_std_dev     = var[0,0]
 
-    # Add the maximum sharpe ratio portfolio
-    sr, weights = cla.getMaxSR()
-    allocation = format_resulting_weights(weights, asset_ids)
-    monthly_mean_return = np.dot(weights.T, means)[0,0]
-    monthly_std_dev     = np.dot(weights.T, np.dot(covars, weights))[0,0]**0.5
+    # min_var_port = {
+    #     "allocation": allocation,
+    #     "statistics": {
+    #         "mean_return": monthly_mean_return,
+    #         "std_dev": monthly_std_dev,
+    #         "annual_nominal_return": annual_nominal_return(monthly_mean_return),
+    #         "annual_std_dev": annual_std_dev(monthly_std_dev)
+    #     }
+    # }
 
-    max_sr_port = {
-        "allocation": allocation,
-        "statistics": {
-            "mean_return": monthly_mean_return,
-            "std_dev": monthly_std_dev,
-            "annual_nominal_return": annual_nominal_return(monthly_mean_return),
-            "annual_std_dev": annual_std_dev(monthly_std_dev)
-        }
-    }
+    # # Add the maximum sharpe ratio portfolio
+    # sr, weights = cla.getMaxSR()
+    # allocation = format_resulting_weights(weights, asset_ids)
+    # monthly_mean_return = np.dot(weights.T, means)[0,0]
+    # monthly_std_dev     = np.dot(weights.T, np.dot(covars, weights))[0,0]**0.5
+
+    # max_sr_port = {
+    #     "allocation": allocation,
+    #     "statistics": {
+    #         "mean_return": monthly_mean_return,
+    #         "std_dev": monthly_std_dev,
+    #         "annual_nominal_return": annual_nominal_return(monthly_mean_return),
+    #         "annual_std_dev": annual_std_dev(monthly_std_dev)
+    #     }
+    # }
 
     # Return results
     return {
       "portfolios": portfolios,
-      "minimum_variance_portfolio": min_var_port,
-      "maximum_sharpe_ratio_portfolio": max_sr_port
+      # "minimum_variance_portfolio": min_var_port,
+      # "maximum_sharpe_ratio_portfolio": max_sr_port
     }

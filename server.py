@@ -7,6 +7,7 @@ import json
 import redis
 import pandas as pd
 import bmemcached
+import hashlib
 
 from flask import Flask
 from flask import request
@@ -112,7 +113,8 @@ def mean_returns(asset_ids):
     return df.drop(asset_ids_to_eliminate)
 
 def build_efficient_frontier_for(asset_ids):
-    cache_key = "efficient_frontier/" + "-".join(asset_ids)
+    md5Hash = hashlib.md5("-".join(asset_ids)).hexdigest()
+    cache_key = "efficient_frontier/" + md5Hash
     val = cache.get(cache_key)
     if val is None:
         app.logger.info("[Cache Miss] Building efficient frontier for: %s" % asset_ids)

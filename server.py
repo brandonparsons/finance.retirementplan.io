@@ -42,6 +42,13 @@ else:
 
 redis_conn = redis.StrictRedis.from_url(os.environ['REDIS_URL'])
 
+# http://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xviii-deployment-on-the-heroku-cloud
+if not app.config['DEBUG']:
+    import logging
+    stream_handler = logging.StreamHandler()
+    app.logger.addHandler(stream_handler)
+    app.logger.setLevel(logging.INFO)
+
 
 ###################
 # UTILITY METHODS #

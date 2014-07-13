@@ -19,6 +19,8 @@ if redis_url is None:
     raise KeyError("%s not present" % "REDIS_URL")
 redis_conn  = redis.StrictRedis.from_url(redis_url)
 
+# redis_conn = redis.StrictRedis(db=6) ## Development
+
 #################
 
 # Load and format asset classes
@@ -44,14 +46,16 @@ formatted_asset_data = {
 tickers = [ el['representative_ticker'] for el in assets ]
 tickers.sort() # Sort as we are sorting means/covars/etc. Everything needs to be sorted so we treat things in the right order
 
-prices = source_data.get_prices(tickers)
+prices = source_data.get_monthly_historical_prices(tickers)
+quotes = { "quotes": source_data.get_last_prices(tickers) }
 
 # Crunch statistics
 mean_returns, std_dev_returns, covariance_matrix = stats.generate_stats(prices)
 
 #################
 
-# Load and format the ETFs as well
+# Load and format the ETFs
+
 etfs = load_json_data.get_etfs()
 
 def uuid_for(ticker):
@@ -129,10 +133,11 @@ pipe.set(name='std_dev_returns',        value=std_dev_returns.to_json())
 pipe.set(name='covariance_matrix',      value=covariance_matrix.to_json())
 pipe.set(name='cholesky_decomposition', value=cholesky_decomposition.to_json())
 ##
-pipe.set(name='inflation', value=json.dumps(infl_obj))
-pipe.set(name='real_estate', value=json.dumps(re_obj))
 pipe.set(name='asset_list', value=json.dumps(formatted_asset_data))
 pipe.set(name='etf_list', value=json.dumps(formatted_etfs))
+pipe.set(name='quotes', value=json.dumps(quotes))
+pipe.set(name='inflation', value=json.dumps(infl_obj))
+pipe.set(name='real_estate', value=json.dumps(re_obj))
 ##
 
 pipe.execute()

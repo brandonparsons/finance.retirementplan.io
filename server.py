@@ -130,6 +130,7 @@ def build_efficient_frontier_for(asset_ids):
         frontier = json.loads(val)
     return frontier
 
+
 ##########
 # ROUTES #
 ##########
@@ -162,6 +163,11 @@ def assets_route():
 def etfs_route():
     check_for_authorization()
     return jsonify( json.loads(redis_conn.get('etf_list')) )
+
+@app.route('/quotes', methods=['GET'])
+def quotes_route():
+    check_for_authorization()
+    return jsonify( json.loads(redis_conn.get('quotes')) )
 
 @app.route('/inflation', methods=['GET'])
 def inflation_route():

@@ -1,7 +1,10 @@
+import math
 import numpy as np
 from lib.CLA import CLA
 
 number_of_points = 30
+
+#######
 
 def lower_bounds(length):
     return np.zeros(length).reshape(length, 1)
@@ -27,6 +30,14 @@ def format_resulting_weights(weights, asset_ids):
         allocation[asset_ids[i]] = weight
 
     return allocation
+
+#######
+
+def annual_nominal_return(monthly_mean_return):
+    return math.pow((1 + monthly_mean_return), 12) - 1 # + 0.02 ## using nominal historical returns
+
+def annual_std_dev(monthly_std_dev):
+    return monthly_std_dev * math.sqrt(12)
 
 #######
 
@@ -56,9 +67,14 @@ def efficient_frontier(asset_ids, mean_returns, covariance_matrix):
 
     for index, portfolio_allocation in enumerate(formatted_weights):
         obj = {}
+        monthly_mean_return = mu[index]
+        monthly_std_dev = sigma[index]
+
         obj["statistics"] = {
-            "mean_return": mu[index],
-            "std_dev": sigma[index]
+            "mean_return": monthly_mean_return,
+            "std_dev": monthly_std_dev,
+            "annual_nominal_return": annual_nominal_return(monthly_mean_return),
+            "annual_std_dev": annual_std_dev(monthly_std_dev)
         }
 
         allocation = {}
@@ -71,24 +87,32 @@ def efficient_frontier(asset_ids, mean_returns, covariance_matrix):
     # Add the minimum variance portfolio
     var, weights = cla.getMinVar()
     allocation = format_resulting_weights(weights, asset_ids)
+    monthly_mean_return = np.dot(weights.T, means)[0,0]
+    monthly_std_dev = var[0,0]
 
     min_var_port = {
         "allocation": allocation,
         "statistics": {
-            "mean_return": np.dot(weights.T, means)[0,0],
-            "std_dev": var[0,0]
+            "mean_return": monthly_mean_return,
+            "std_dev": monthly_std_dev,
+            "annual_nominal_return": annual_nominal_return(monthly_mean_return),
+            "annual_std_dev": annual_std_dev(monthly_std_dev)
         }
     }
 
     # Add the maximum sharpe ratio portfolio
     sr, weights = cla.getMaxSR()
     allocation = format_resulting_weights(weights, asset_ids)
+    monthly_mean_return = np.dot(weights.T, means)[0,0]
+    monthly_std_dev = np.dot(weights.T, np.dot(covars, weights))[0,0]**0.5
 
     max_sr_port = {
         "allocation": allocation,
         "statistics": {
-            "mean_return": np.dot(weights.T, means)[0,0],
-            "std_dev": np.dot(weights.T, np.dot(covars, weights))[0,0]**0.5,
+            "mean_return": monthly_mean_return,
+            "std_dev": monthly_std_dev,
+            "annual_nominal_return": annual_nominal_return(monthly_mean_return),
+            "annual_std_dev": annual_std_dev(monthly_std_dev)
         }
     }
 

@@ -128,6 +128,8 @@ def build_efficient_frontier_for(asset_ids):
         # FIXME: You are json dumping to store in memcache, marshalling to return
         # to request, then flask-jsonifying back again. Better way? For later......
         frontier = json.loads(val)
+
+    # app.logger.info("Frontier: %r" % frontier)
     return frontier
 
 

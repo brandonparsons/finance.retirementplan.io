@@ -68,7 +68,7 @@ def efficient_frontier(asset_ids, mean_returns, covariance_matrix):
     for index, portfolio_allocation in enumerate(formatted_weights):
         obj = {}
         monthly_mean_return = mu[index]
-        monthly_std_dev = sigma[index]
+        monthly_std_dev     = sigma[index]
 
         obj["statistics"] = {
             "mean_return": monthly_mean_return,
@@ -88,7 +88,7 @@ def efficient_frontier(asset_ids, mean_returns, covariance_matrix):
     var, weights = cla.getMinVar()
     allocation = format_resulting_weights(weights, asset_ids)
     monthly_mean_return = np.dot(weights.T, means)[0,0]
-    monthly_std_dev = var[0,0]
+    monthly_std_dev     = var[0,0]
 
     min_var_port = {
         "allocation": allocation,
@@ -104,7 +104,7 @@ def efficient_frontier(asset_ids, mean_returns, covariance_matrix):
     sr, weights = cla.getMaxSR()
     allocation = format_resulting_weights(weights, asset_ids)
     monthly_mean_return = np.dot(weights.T, means)[0,0]
-    monthly_std_dev = np.dot(weights.T, np.dot(covars, weights))[0,0]**0.5
+    monthly_std_dev     = np.dot(weights.T, np.dot(covars, weights))[0,0]**0.5
 
     max_sr_port = {
         "allocation": allocation,

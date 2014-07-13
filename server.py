@@ -105,7 +105,7 @@ def mean_returns(asset_ids):
 
 @cache.memoize()
 def build_efficient_frontier_for(asset_ids):
-    app.logger.warn("[Cache Miss] Building efficient frontier for: %s" % asset_ids)
+    app.logger.warning("[Cache Miss] Building efficient frontier for: %s" % asset_ids)
     means    = mean_returns(asset_ids)
     covars   = covariance_matrix(asset_ids)
     return efficient_frontier(asset_ids, means, covars)

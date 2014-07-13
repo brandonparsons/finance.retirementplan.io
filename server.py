@@ -163,6 +163,16 @@ def etfs_route():
     check_for_authorization()
     return jsonify( json.loads(redis_conn.get('etf_list')) )
 
+@app.route('/inflation', methods=['GET'])
+def inflation_route():
+    check_for_authorization()
+    return jsonify( json.loads(redis_conn.get('inflation')) )
+
+@app.route('/real_estate', methods=['GET'])
+def real_estate_route():
+    check_for_authorization()
+    return jsonify( json.loads(redis_conn.get('real_estate')) )
+
 @app.route('/cholesky', methods=['GET'])
 def cholesky_route():
     check_for_authorization()

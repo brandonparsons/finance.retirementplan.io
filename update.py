@@ -95,6 +95,25 @@ cholesky_decomposition          = pd.DataFrame(np.linalg.cholesky(covariance_mat
 cholesky_decomposition.index    = covariance_matrix.index
 cholesky_decomposition.columns  = covariance_matrix.columns
 
+#################
+
+# Generate data for real estate and inflation
+
+re   = source_data.get_real_estate()
+infl = source_data.get_inflation()
+
+re_mean, re_std_dev     = stats.stats_for_single_asset(re)
+infl_mean, infl_std_dev = stats.stats_for_single_asset(infl)
+
+re_obj = {
+    "mean": re_mean,
+    "std_dev": re_std_dev
+}
+
+infl_obj = {
+    "mean": infl_mean,
+    "std_dev": infl_std_dev
+}
 
 #################
 
@@ -108,6 +127,8 @@ pipe.set(name='std_dev_returns',        value=std_dev_returns.to_json())
 pipe.set(name='covariance_matrix',      value=covariance_matrix.to_json())
 pipe.set(name='cholesky_decomposition', value=cholesky_decomposition.to_json())
 ##
+pipe.set(name='inflation', value=json.dumps(infl_obj))
+pipe.set(name='real_estate', value=json.dumps(re_obj))
 pipe.set(name='asset_list', value=json.dumps(formatted_asset_data))
 pipe.set(name='etf_list', value=json.dumps(formatted_etfs))
 ##

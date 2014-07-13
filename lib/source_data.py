@@ -1,6 +1,7 @@
 import datetime
 import pandas as pd
 import pandas.io.data as web
+import Quandl
 
 start       = datetime.datetime(2000, 1, 1).date()
 end         = datetime.date.today()
@@ -50,3 +51,25 @@ def get_prices(tickers, use_adjusted=True):
     df = df.resample('M', how='mean')
 
     return df
+
+def get_real_estate():
+    """
+    :param (none)
+    :return: pandas DataFrame of real estate data (Case-Schiller)
+    """
+
+    # Trimming to 2007-10-01 to be on ~ the same timescale as have data for all
+    # other securities.
+    df = Quandl.get("SANDP/HPI_COMPOSITE10_SA", trim_start="2007-10-01")
+    return df['Index']
+
+def get_inflation():
+    """
+    :param (none)
+    :return: pandas DataFrame of inflation data (Bank of Canada)
+    """
+
+    # Trimming to 2007-10-01 to be on ~ the same timescale as have data for all
+    # other securities.
+    df = Quandl.get("BOC/CDA_CPI", trim_start="2007-10-01")
+    return df['Core CPI']

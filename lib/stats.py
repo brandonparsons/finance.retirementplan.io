@@ -1,5 +1,7 @@
 def generate_stats(dataframe):
     """
+    Returns statistical information for a SET of securities - i.e. more than one.
+    (Completes correlation/covariance matrices, etc.)
     :param dataframe: pandas DataFrame
     :return: mean_returns, std_dev_of_returns, covariance_matrix
     """
@@ -20,3 +22,16 @@ def generate_stats(dataframe):
     covariance_matrix   = returns.cov()
 
     return mean_returns, std_dev_of_returns, covariance_matrix
+
+def stats_for_single_asset(dataframe):
+    """
+    Returns statistical information for a SINGLE asset - does not attempt to
+    obtain covariance / correlation matrices.
+    :param dataframe: pandas DataFrame
+    :return: mean_return, std_dev
+    """
+    returns = dataframe.pct_change()
+    mean_return = returns.mean()
+    std_dev = returns.std()
+
+    return mean_return, std_dev

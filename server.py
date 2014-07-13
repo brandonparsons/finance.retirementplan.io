@@ -13,6 +13,7 @@ from flask import Response
 from flask import jsonify
 from flask import abort
 
+from flask.ext.cache import Cache
 from flask_sslify import SSLify
 
 from lib.efficient_frontier import efficient_frontier
@@ -28,6 +29,16 @@ app.config['DEBUG'] = os.environ.get('DEBUG', False)
 
 if not app.config['DEBUG']:
     sslify = SSLify(app)
+
+if app.config['DEBUG']:
+    cache = Cache(app,config={'CACHE_TYPE': 'null'})
+else:
+    cache = Cache(app, config={
+      'CACHE_TYPE': 'memcached',
+      'CACHE_MEMCACHED_SERVERS':  [ os.environ['MEMCACHEDCLOUD_SERVERS'] ],
+      'CACHE_MEMCACHED_USERNAME': os.environ['MEMCACHEDCLOUD_USERNAME'],
+      'CACHE_MEMCACHED_PASSWORD': os.environ['MEMCACHEDCLOUD_PASSWORD']
+    })
 
 redis_conn = redis.StrictRedis.from_url(os.environ['REDIS_URL'])
 
@@ -57,6 +68,7 @@ def get_key_in_json(key, json):
 ######################
 
 def covariance_matrix(asset_ids):
+    # No need to memoize this unless jsonify is taking lots of time - data from redis
     # Covariance matrix is a *DataFrame*
     json = redis_conn.get('covariance_matrix')
     df   = pd.io.json.read_json(json)
@@ -68,6 +80,7 @@ def covariance_matrix(asset_ids):
     return df.drop(asset_ids_to_eliminate, axis=0).drop(asset_ids_to_eliminate, axis=1)
 
 def cholesky_decomposition(asset_ids):
+    # No need to memoize this unless jsonify is taking lots of time - data from redis
     # Cholesky decomp matrix is a *DataFrame*
     json = redis_conn.get('cholesky_decomposition')
     df   = pd.io.json.read_json(json)
@@ -79,6 +92,7 @@ def cholesky_decomposition(asset_ids):
     return df.drop(asset_ids_to_eliminate, axis=0).drop(asset_ids_to_eliminate, axis=1)
 
 def mean_returns(asset_ids):
+    # No need to memoize this unless jsonify is taking lots of time - data from redis
     # Mean returns is a *Series*
     json = redis_conn.get('mean_returns')
     df   = pd.io.json.read_json(json, typ='series')
@@ -89,7 +103,9 @@ def mean_returns(asset_ids):
 
     return df.drop(asset_ids_to_eliminate)
 
+@cache.memoize()
 def build_efficient_frontier_for(asset_ids):
+    app.logger.info("[Cache Miss] Building efficient frontier for: %s" % asset_ids)
     means    = mean_returns(asset_ids)
     covars   = covariance_matrix(asset_ids)
     return efficient_frontier(asset_ids, means, covars)
@@ -99,7 +115,7 @@ def build_efficient_frontier_for(asset_ids):
 # ROUTES #
 ##########
 
-# Health check routes
+# Utility routes
 
 @app.route('/')
 def root():
@@ -108,6 +124,13 @@ def root():
 @app.route('/health')
 def health():
     return "OK", 200
+
+@app.route('/clear_cache', methods=["GET"])
+def clear_cache():
+  check_for_authorization()
+  cache.clear()
+  return jsonify({"success": True, "message": "Cache cleared."})
+
 
 # App routes
 
@@ -125,6 +148,7 @@ def etfs_route():
 def cholesky_route():
     check_for_authorization()
     asset_ids = get_key_in_json('asset_ids', request.json)
+    asset_ids.sort()
     app.logger.info("Received cholesky request for: %s" % asset_ids)
     cholesky_dataframe_as_array = cholesky_decomposition(asset_ids).values
     as_flat_array = cholesky_dataframe_as_array.flatten().tolist() # Just do .tolist() if you want it as an array of arrays
@@ -134,6 +158,7 @@ def cholesky_route():
 def cla_calc_route():
     check_for_authorization()
     asset_ids = get_key_in_json('asset_ids', request.json)
+    asset_ids.sort()
     app.logger.info("Received CLA calc request for: %s" % asset_ids)
     return jsonify(build_efficient_frontier_for(asset_ids))
 

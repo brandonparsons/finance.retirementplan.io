@@ -120,6 +120,17 @@ print("Done!")
 
 #################
 
+print("Clearing cache.....")
+import requests
+
+auth_token = os.environ.get('AUTH_TOKEN', 'abcd')
+self_url = os.environ.get('SELF_URL', 'http://localhost:5000')
+url = self_url + '/clear_cache'
+r = requests.get(url, headers={'Authorization': auth_token})
+
+print("Done!")
+
+#################
 
 # for el in assets:
 #     ticker  = el['representative_ticker']

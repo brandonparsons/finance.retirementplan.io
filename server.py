@@ -15,7 +15,6 @@ from flask import Response
 from flask import jsonify
 from flask import abort
 
-from flask.ext.cache import Cache
 from flask_sslify import SSLify
 
 from lib.efficient_frontier import efficient_frontier

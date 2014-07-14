@@ -105,11 +105,27 @@ def mean_returns(asset_ids):
     json = redis_conn.get('mean_returns')
     df   = pd.io.json.read_json(json, typ='series')
 
-    asset_ids_set             = set(asset_ids)
-    available_asset_ids_set   = set(df.index.values)
-    asset_ids_to_eliminate    = list(available_asset_ids_set - asset_ids_set)
+    if len(asset_ids) > 0:
+        asset_ids_set             = set(asset_ids)
+        available_asset_ids_set   = set(df.index.values)
+        asset_ids_to_eliminate    = list(available_asset_ids_set - asset_ids_set)
+        return df.drop(asset_ids_to_eliminate)
+    else:
+        return df
 
-    return df.drop(asset_ids_to_eliminate)
+def std_dev_returns(asset_ids):
+    # No need to memoize this unless jsonify is taking lots of time - data from redis
+    # Mean returns is a *Series*
+    json = redis_conn.get('std_dev_returns')
+    df   = pd.io.json.read_json(json, typ='series')
+
+    if len(asset_ids) > 0:
+        asset_ids_set             = set(asset_ids)
+        available_asset_ids_set   = set(df.index.values)
+        asset_ids_to_eliminate    = list(available_asset_ids_set - asset_ids_set)
+        return df.drop(asset_ids_to_eliminate)
+    else:
+        return df
 
 def build_efficient_frontier_for(asset_ids):
     md5Hash = hashlib.md5("-".join(asset_ids)).hexdigest()
@@ -165,6 +181,16 @@ def assets_route():
 def etfs_route():
     check_for_authorization()
     return jsonify( json.loads(redis_conn.get('etf_list')) )
+
+@app.route('/performance', methods=['GET'])
+def performance_route():
+    check_for_authorization()
+    asset_ids = get_key_in_json('asset_ids', request.json)
+    asset_ids.sort()
+    df = pd.DataFrame()
+    df['mean'] = mean_returns(asset_ids)
+    df['std_dev'] = std_dev_returns(asset_ids)
+    return Response(df.transpose().to_json(), mimetype='application/json')
 
 @app.route('/quotes', methods=['GET'])
 def quotes_route():

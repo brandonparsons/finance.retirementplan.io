@@ -47,7 +47,6 @@ tickers = [ el['representative_ticker'] for el in assets ]
 tickers.sort() # Sort as we are sorting means/covars/etc. Everything needs to be sorted so we treat things in the right order
 
 prices = source_data.get_monthly_historical_prices(tickers)
-quotes = { "quotes": source_data.get_last_prices(tickers) }
 
 # Crunch statistics
 mean_returns, std_dev_returns, covariance_matrix = stats.generate_stats(prices)
@@ -73,6 +72,11 @@ formatted_etfs = {
         add_id_to_etf(etf) for etf in etfs
     ]
 }
+
+# Save ETF latest quotes
+
+etf_tickers = [ etf['ticker'] for etf in etfs ]
+quotes = { "quotes": source_data.get_last_prices(etf_tickers) }
 
 #################
 

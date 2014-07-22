@@ -99,10 +99,10 @@ def cholesky_decomposition(asset_ids):
 
     return df.drop(asset_ids_to_eliminate, axis=0).drop(asset_ids_to_eliminate, axis=1)
 
-def mean_returns(asset_ids):
+def mean_returns(asset_ids, returns_source="reverse_optimized_returns"):
     # No need to memoize this unless jsonify is taking lots of time - data from redis
     # Mean returns is a *Series*
-    json = redis_conn.get('mean_returns')
+    json = redis_conn.get(returns_source) # other option: 'mean_returns'
     df   = pd.io.json.read_json(json, typ='series')
 
     if len(asset_ids) > 0:

@@ -1,6 +1,7 @@
 import os
 import json
 import uuid
+import math
 import redis
 import pandas as pd
 import numpy as np
@@ -12,7 +13,7 @@ import lib.stats as stats
 
 #################
 
-print("Updating securities data in Redis....")
+print("Updating finance data in Redis....")
 
 redis_url   = os.getenv('REDIS_URL')
 if redis_url is None:
@@ -42,14 +43,52 @@ formatted_asset_data = {
 
 #################
 
-# Get prices from external data source
+# Get prices from external data source.
 tickers = [ el['representative_ticker'] for el in assets ]
 tickers.sort() # Sort as we are sorting means/covars/etc. Everything needs to be sorted so we treat things in the right order
-
-prices = source_data.get_monthly_historical_prices(tickers)
+prices = source_data.get_historical_prices(tickers) # Default option resamples the prices as monthly means - see source data file for why.
 
 # Crunch statistics
 mean_returns, std_dev_returns, covariance_matrix = stats.generate_stats(prices)
+
+# Perform reverse portfolio optimization
+# - FIXME: Updated Jul 18th- 2014. Need to update occasionally (along with returns). Some way to remember these need updating periodically?
+# If swap later to real values (vs. nominal), can get long-term inflation expectations here: http://www.clevelandfed.org/research/data/inflation_expectations/
+ANNUALIZED_LONG_TERM_RISK_FREE_RATE    = 0.025 # 10-year U.S. T-Bill - http://www.bloomberg.com/markets/rates-bonds/government-bonds/us/
+MONTHLY_RISK_FREE_RATE      = math.pow( (1 + ANNUALIZED_LONG_TERM_RISK_FREE_RATE), (1.0/12.0) ) - 1
+
+ANNUAL_MARKET_RISK_PREMIUM  = 0.0538 # http://pages.stern.nyu.edu/~%20adamodar/
+MONTHLY_MARKET_RISK_PREMIUM = math.pow( (1 + ANNUAL_MARKET_RISK_PREMIUM), (1.0/12.0) ) - 1
+
+market_portfolio_weights = pd.Series({ # FIXME: Copied from old spreadsheet, adjusted for tickers
+    "EWC":      0.013,
+    "VFINX":    0.10,
+    "NAESX":    0.018,
+    "EFA":      0.131,
+    "EEM":      0.088,
+    "XSB.TO":   0.013,
+    "XLB":      0.001,
+    "VFISX":    0.034,
+    "VFITX":    0.027,
+    "VUSTX":    0.013,
+    "CSJ":      0.052,
+    "CIU":      0.025,
+    "LQD":      0.070,
+    "BWX":      0.237,
+    "IYR":      0.041,
+    "XRE.TO":   0.005,
+    "RWX":      0.115,
+    "GSG":      0.019,
+})
+
+historical_risk_free_returns = source_data.get_tbill().pct_change()
+
+reverse_optimized_monthly_returns = stats.reverse_portfolio_optimization(
+    prices.pct_change()[:historical_risk_free_returns.tail(1).index[0]], # Cut prices off at end of tbills - tbills has less data
+    historical_risk_free_returns[prices[0:1].index[0]:], # Start tbills at same start date as prices
+    market_portfolio_weights,
+    MONTHLY_MARKET_RISK_PREMIUM,
+    MONTHLY_RISK_FREE_RATE)
 
 #################
 
@@ -72,6 +111,8 @@ formatted_etfs = {
         add_id_to_etf(etf) for etf in etfs
     ]
 }
+
+#################
 
 # Save ETF latest quotes
 
@@ -132,10 +173,11 @@ pipe = redis_conn.pipeline()
 pipe.multi()
 
 ##
-pipe.set(name='mean_returns',           value=mean_returns.to_json())
-pipe.set(name='std_dev_returns',        value=std_dev_returns.to_json())
-pipe.set(name='covariance_matrix',      value=covariance_matrix.to_json())
-pipe.set(name='cholesky_decomposition', value=cholesky_decomposition.to_json())
+pipe.set(name='mean_returns',               value=mean_returns.to_json())
+pipe.set(name='reverse_optimized_returns',  value=reverse_optimized_monthly_returns.to_json())
+pipe.set(name='std_dev_returns',            value=std_dev_returns.to_json())
+pipe.set(name='covariance_matrix',          value=covariance_matrix.to_json())
+pipe.set(name='cholesky_decomposition',     value=cholesky_decomposition.to_json())
 ##
 pipe.set(name='asset_list', value=json.dumps(formatted_asset_data))
 pipe.set(name='etf_list', value=json.dumps(formatted_etfs))
@@ -163,51 +205,3 @@ r = requests.get(url, headers={'Authorization': auth_token})
 print("Done!")
 
 #################
-
-# for el in assets:
-#     ticker  = el['representative_ticker']
-#     el_id   = el['id']
-
-#     # List of id's
-#     redis_conn.sadd('asset_ids', el_id)
-
-#     # Hash asset-id => representative-ticker
-#     redis_conn.hset('assets', el_id, ticker)
-
-#     # Hash representative-ticker => asset-id
-#     redis_conn.hset('tickers', ticker, el_id)
-
-
-# for ticker in tickers:
-
-#     # Mean return: VALUE
-#     # Saves mean returns as a value under a key for each ticker
-#     name = ''.join([ticker, ':mean_return'])
-#     redis_conn.set(name=name, value=mean_returns[ticker])
-
-#     # Standard-deviation: VALUE
-#     # Saves standard deviation of returns as a value under a key for each ticker
-#     name = ''.join([ticker, ':std_dev'])
-#     redis_conn.set(name=name, value=std_dev_of_returns[ticker])
-
-#     # Prices: HASH
-#     # Saves all prices to a hash where the keys are the dates
-#     name = ''.join([ticker, ':prices'])
-#     for row in df.iterrows():
-#         redis_conn.hset(name=name, key=row[0].date().strftime('%Y-%m-%d'), value=row[1][ticker])
-
-#     # Correlations: HASH
-#     # For a given ticker `A`, saves correlations for every other ticker as
-#     # keys in the hash. Values against those keys are the correlations.
-#     name = ''.join([ticker, ':correlations'])
-#     temp = dict(correlation_matrix[ticker])
-#     for i in temp.iteritems():
-#         redis_conn.hset(name=name, key=i[0], value=i[1])
-
-#     # Covariances: HASH
-#     # For a given ticker `A`, saves covariances for every other ticker as
-#     # keys in the hash. Values against those keys are the covariances.
-#     name = ''.join([ticker, ':covariances'])
-#     temp = dict(covariance_matrix[ticker])
-#     for i in temp.iteritems():
-#         redis_conn.hset(name=name, key=i[0], value=i[1])

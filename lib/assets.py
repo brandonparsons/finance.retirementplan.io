@@ -4,12 +4,13 @@
 
 import os
 import json
-import math
 import datetime
 import pandas           as pd
 import pandas.io.data   as web
 import numpy            as np
 import Quandl
+
+from . import risk_free_rate
 
 
 ####################
@@ -17,13 +18,6 @@ import Quandl
 ####################
 
 monthly_prices = None
-
-## - FIXME: Updated Jul 18th- 2014. Need to update occasionally....Figure out way
-## to remember or set cron job? Scrape?
-ANNUALIZED_LONG_TERM_RISK_FREE_RATE = 0.025 # 10-year U.S. T-Bill - http://www.bloomberg.com/markets/rates-bonds/government-bonds/us/
-ANNUAL_MARKET_RISK_PREMIUM = 0.0538 # http://pages.stern.nyu.edu/~%20adamodar/
-# If swap later to real values (vs. nominal), can get long-term inflation
-# expectations here: http://www.clevelandfed.org/research/data/inflation_expectations/
 
 
 ##############
@@ -185,10 +179,13 @@ def _get_tbill(trim_start="2000-01-31"):
     return df['Value']
 
 def _reverse_optimized_returns():
-    # Perform reverse portfolio optimization
+    """
+    Performs a reverse portfolio optimization. First section pulls required data
+    together, second section executes.
+    """
 
-    monthly_risk_free_rate      = math.pow( (1 + ANNUALIZED_LONG_TERM_RISK_FREE_RATE), (1.0/12.0) ) - 1
-    monthly_market_risk_premium = math.pow( (1 + ANNUAL_MARKET_RISK_PREMIUM), (1.0/12.0) ) - 1
+    monthly_risk_free_rate      = risk_free_rate.monthly_risk_free_rate()
+    monthly_market_risk_premium = risk_free_rate.monthly_market_risk_premium()
 
     # Copied from old spreadsheet, adjusted for tickers
     # FIXME: These need updating at some point, and on semi-regular basis (1-2x per year?)

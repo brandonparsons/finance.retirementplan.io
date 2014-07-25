@@ -27,7 +27,7 @@ def format_resulting_weights(weights, asset_ids):
 
     allocation = {}
     for i, weight in enumerate(formatted_weights):
-	allocation[asset_ids[i]] = weight
+        allocation[asset_ids[i]] = weight
 
     return allocation
 
@@ -60,29 +60,29 @@ def efficient_frontier(asset_ids, mean_returns, covariance_matrix):
     # Format turning point portfolios
     formatted_weights = []
     for entry in weights:
-	flattened = [item for sublist in entry.tolist() for item in sublist]
-	formatted_weights.append(flattened)
+        flattened = [item for sublist in entry.tolist() for item in sublist]
+        formatted_weights.append(flattened)
 
     portfolios = []
 
     for index, portfolio_allocation in enumerate(formatted_weights):
-	obj = {}
-	monthly_mean_return = mu[index]
-	monthly_std_dev     = sigma[index]
+        obj = {}
+        monthly_mean_return = mu[index]
+        monthly_std_dev     = sigma[index]
 
-	obj["statistics"] = {
-	    "mean_return": monthly_mean_return,
-	    "std_dev": monthly_std_dev,
-	    "annual_nominal_return": annual_nominal_return(monthly_mean_return),
-	    "annual_std_dev": annual_std_dev(monthly_std_dev)
-	}
+        obj["statistics"] = {
+            "mean_return": monthly_mean_return,
+            "std_dev": monthly_std_dev,
+            "annual_nominal_return": annual_nominal_return(monthly_mean_return),
+            "annual_std_dev": annual_std_dev(monthly_std_dev)
+        }
 
-	allocation = {}
-	for i, weight in enumerate(portfolio_allocation):
-	  allocation[asset_ids[i]] = weight
-	obj["allocation"]  = allocation
+        allocation = {}
+        for i, weight in enumerate(portfolio_allocation):
+          allocation[asset_ids[i]] = weight
+        obj["allocation"]  = allocation
 
-	portfolios.append(obj)
+        portfolios.append(obj)
 
     # On quick inspection of the algorithm, the minimum variance and maximum
     # Sharpe Ratio portfolios appear to be pulled from the results - i.e. they

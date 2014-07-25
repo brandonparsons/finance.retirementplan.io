@@ -4,6 +4,7 @@ Jinja2==2.7.3
 MarkupSafe==0.23
 Quandl==2.0
 Werkzeug==0.9.6
+gunicorn==19.0.0
 itsdangerous==0.24
 newrelic==2.22.1.20
 numpy==1.8.1
@@ -13,6 +14,7 @@ python-dateutil==2.2
 pytz==2014.4
 redis==2.10.1
 requests==2.3.0
+scipy==0.14.0
 six==1.7.3
 wsgiref==0.1.2
 ystockquote==0.2.4

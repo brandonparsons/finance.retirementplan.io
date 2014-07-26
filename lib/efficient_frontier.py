@@ -1,129 +1,154 @@
+###########
+# IMPORTS #
+###########
+
 import math
-import numpy as np
-from lib.CLA import CLA
+from numpy import linspace, ones, dot, array
+import scipy, scipy.optimize
 
-number_of_points = 30
+from . import risk_free_rate
 
-#######
 
-def lower_bounds(length):
-    return np.zeros(length).reshape(length, 1)
+####################
+# MODULE VARIABLES #
+####################
 
-def upper_bounds(length):
-    return np.ones(length).reshape(length, 1)
+NUMBER_PORTFOLIOS_TO_GENERATE = 20
 
-def format_mean_returns_dataframe(df, length):
-    # # No longer need to sort the index - already doing that
-    # return df.sort_index().values.reshape(length, 1)
-    return df.values.reshape(length, 1)
 
-def format_covars_dataframe(df):
-    # # No longer need to sort the index - already doing that
-    # return df.sort(axis=0).sort(axis=1).values
-    return df.values
-
-def format_resulting_weights(weights, asset_ids):
-    formatted_weights = [ entry[0] for entry in weights ]
-
-    allocation = {}
-    for i, weight in enumerate(formatted_weights):
-	allocation[asset_ids[i]] = weight
-
-    return allocation
-
-#######
-
-def annual_nominal_return(monthly_mean_return):
-    return math.pow((1 + monthly_mean_return), 12) - 1 # + 0.02 ## using nominal historical returns
-
-def annual_std_dev(monthly_std_dev):
-    return monthly_std_dev * math.sqrt(12)
-
-#######
+##############
+# PUBLIC API #
+##############
 
 def efficient_frontier(asset_ids, mean_returns, covariance_matrix):
-    # Format data
+    """
+    Generates and formats an efficient frontier for a given set of asset ids,
+    and their corresponding mean returns and covariances. ID's and the columns
+    / indexes of means/covars are expected to match.
+    :param asset_ids: array of asset ID's (e.g. INTL-STOCK)
+    :param mean_returns: numpy array of the mean returns corresponding to passed in asset_ids
+    :param covariance_matrix: numpy matrix of the covariances corresponding to passed in asset_ids
+    """
 
-    number_of_asset_ids = mean_returns.size
-    means   = format_mean_returns_dataframe(mean_returns, number_of_asset_ids)
-    covars  = format_covars_dataframe(covariance_matrix)
-    lB      = lower_bounds(number_of_asset_ids)
-    uB      = upper_bounds(number_of_asset_ids)
+    # Generate the frontier
+    rfr = risk_free_rate.monthly_risk_free_rate()
+    frontier = _solve_frontier(mean_returns, covariance_matrix, rfr)
 
-    # Solve critical line algorithm
-    cla = CLA(means, covars, lB, uB)
-    cla.solve()
+    # Format frontier
+    formatted = _format_frontier(frontier, asset_ids)
 
-    # Get turning point portfolios
-    mu,sigma,weights = cla.efFrontier(number_of_points)
+    # Sort & cull
+    culled = _sort_and_cull_frontier(formatted)
 
-    # Format turning point portfolios
-    formatted_weights = []
-    for entry in weights:
-	flattened = [item for sublist in entry.tolist() for item in sublist]
-	formatted_weights.append(flattened)
+    return { "portfolios": culled }
 
-    portfolios = []
 
-    for index, portfolio_allocation in enumerate(formatted_weights):
-	obj = {}
-	monthly_mean_return = mu[index]
-	monthly_std_dev     = sigma[index]
+###############
+# PRIVATE API #
+###############
 
-	obj["statistics"] = {
-	    "mean_return": monthly_mean_return,
-	    "std_dev": monthly_std_dev,
-	    "annual_nominal_return": annual_nominal_return(monthly_mean_return),
-	    "annual_std_dev": annual_std_dev(monthly_std_dev)
-	}
+def _sort_and_cull_frontier(frontier):
+    # Frontier needs to be sorted by increasing level of risk prior to cull algorithm
+    frontier.sort(key=lambda elem: elem['statistics']['std_dev'] )
 
-	allocation = {}
-	for i, weight in enumerate(portfolio_allocation):
-	  allocation[asset_ids[i]] = weight
-	obj["allocation"]  = allocation
+    culled_frontier = []
+    last_return = -999999
 
-	portfolios.append(obj)
+    for portfolio in frontier:
+        if portfolio['statistics']['mean_return'] > last_return:
+            last_return = portfolio['statistics']['mean_return']
+            culled_frontier.append(portfolio)
 
-    # On quick inspection of the algorithm, the minimum variance and maximum
-    # Sharpe Ratio portfolios appear to be pulled from the results - i.e. they
-    # are not NEW portfolios and don't need to be separately included unless
-    # you want to mark them for some reason.  REMOVING from the response.
+    return culled_frontier
 
-    # # Add the minimum variance portfolio
-    # var, weights = cla.getMinVar()
-    # allocation = format_resulting_weights(weights, asset_ids)
-    # monthly_mean_return = np.dot(weights.T, means)[0,0]
-    # monthly_std_dev     = var[0,0]
+def _format_frontier(frontier, asset_ids):
+    frontier_means      = frontier[0]
+    frontier_variances  = frontier[1]
+    frontier_weights    = frontier[2]
+    formatted_frontier  = []
+    for index, portfolio_allocation in enumerate(frontier_weights):
+        rounded_portfolio_allocation    = [round(asset_weight, 4) for asset_weight in portfolio_allocation]
+        this_portfolios_mean            = frontier_means[index]
+        this_portfolios_std_dev         = math.pow(frontier_variances[index], 0.5)
+        formatted_frontier.append({
+            "allocation": dict(zip(asset_ids, rounded_portfolio_allocation)),
+            "statistics": {
+            "mean_return":              this_portfolios_mean,
+            "std_dev":                  this_portfolios_std_dev,
+            "annual_nominal_return":    _annual_nominal_return(this_portfolios_mean),
+            "annual_std_dev":           _annual_std_dev(this_portfolios_std_dev),
+            }
+        })
+    return formatted_frontier
 
-    # min_var_port = {
-    #     "allocation": allocation,
-    #     "statistics": {
-    #         "mean_return": monthly_mean_return,
-    #         "std_dev": monthly_std_dev,
-    #         "annual_nominal_return": annual_nominal_return(monthly_mean_return),
-    #         "annual_std_dev": annual_std_dev(monthly_std_dev)
-    #     }
-    # }
+def _annual_nominal_return(monthly_mean_return, nominal=True):
+    """
+    Converts a monthly mean return (nominal default) to an annualized nominal return
+    """
+    annualized = math.pow((1 + monthly_mean_return), 12) - 1
+    if not nominal:
+	annualized += 0.02 # Assume 2% inflation
+    return annualized
 
-    # # Add the maximum sharpe ratio portfolio
-    # sr, weights = cla.getMaxSR()
-    # allocation = format_resulting_weights(weights, asset_ids)
-    # monthly_mean_return = np.dot(weights.T, means)[0,0]
-    # monthly_std_dev     = np.dot(weights.T, np.dot(covars, weights))[0,0]**0.5
+def _annual_std_dev(monthly_std_dev):
+    """
+    Converts a monthly standard deviation to an annualized value
+    """
+    return monthly_std_dev * math.sqrt(12)
 
-    # max_sr_port = {
-    #     "allocation": allocation,
-    #     "statistics": {
-    #         "mean_return": monthly_mean_return,
-    #         "std_dev": monthly_std_dev,
-    #         "annual_nominal_return": annual_nominal_return(monthly_mean_return),
-    #         "annual_std_dev": annual_std_dev(monthly_std_dev)
-    #     }
-    # }
+def _port_mean(weights, means):
+    """
+    Calculates portfolio mean return
+    :param weights: numpy array of asset weights
+    :param means: numpy array of asset mean returns
+    """
+    return sum(means * weights)
 
-    # Return results
-    return {
-      "portfolios": portfolios,
-      # "minimum_variance_portfolio": min_var_port,
-      # "maximum_sharpe_ratio_portfolio": max_sr_port
-    }
+def _port_var(weights, covars):
+    """
+    Calculates portfolio variance of returns
+    :param weights: numpy array of asset weights
+    :param covars: numpy matrix of asset covariances
+    """
+    return dot(dot(weights, covars), weights)
+
+# Combination of the two functions above - mean and variance of returns calculation
+def _port_mean_var(weights, means, covars):
+    """
+    Combination function - returns portfolio mean & variance
+    :param weights: numpy array of asset weights
+    :param means: numpy array of asset mean returns
+    :param covars: numpy matrix of asset covariances
+    """
+    return _port_mean(weights, means), _port_var(weights, covars)
+
+def _solve_frontier(R, C, rf):
+    """
+    Given risk-free rate, assets returns and covariances, this function calculates
+    mean-variance frontier and returns its [x,y] points in two arrays.
+    Source: https://code.google.com/p/quantandfinancial/ GNU GPL v3
+    Not modified except for underscores in front of method names.
+    :param R: numpy array of asset mean returns
+    :param C: numpy array of asset covariances
+    :param rf: risk-free rate
+    """
+    def fitness(W, R, C, r):
+	# For given level of return r, find weights which minimizes portfolio variance.
+	mean, var = _port_mean_var(W, R, C)
+	# Big penalty for not meeting stated portfolio return effectively serves as optimization constraint
+	penalty = 50*abs(mean-r)
+	return var + penalty
+    frontier_mean, frontier_var, frontier_weights = [], [], []
+    n = len(R) # Number of assets in the portfolio
+    for r in linspace(min(R), max(R), num=NUMBER_PORTFOLIOS_TO_GENERATE): # Iterate through the range of returns on Y axis
+	W = ones([n])/n  # Start optimization with equal weights
+	b_ = [(0,1) for i in range(n)]
+	c_ = ({'type':'eq', 'fun': lambda W: sum(W)-1. })
+	optimized = scipy.optimize.minimize(fitness, W, (R, C, r), method='SLSQP', constraints=c_, bounds=b_)
+	if not optimized.success:
+	    raise BaseException(optimized.message)
+	# Add point to the min-var frontier [x,y] = [optimized.x, r]
+	frontier_mean.append(r) # return
+	frontier_var.append(_port_var(optimized.x, C)) # min-variance based on optimized weights
+	frontier_weights.append(optimized.x)
+    return array(frontier_mean), array(frontier_var), frontier_weights

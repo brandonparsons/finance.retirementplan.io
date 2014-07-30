@@ -1,10 +1,10 @@
 #!/bin/sh
 
 if [ "$FLASK_ENV" == "development" ]; then
-    DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-    PARENTDIR="$(dirname "$DIR")"
-    $PARENTDIR/venv/bin/python server.py
+  DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+  PARENTDIR="$(dirname "$DIR")"
+  $PARENTDIR/venv/bin/python server.py
 else
-    # gunicorn server:app -w 3
-    newrelic-admin run-program gunicorn --log-file=- --workers=8 server:app  # --worker-class gevent
+  # gunicorn server:app -w 3
+  newrelic-admin run-program gunicorn --log-file=- --workers=8 server:app  # --worker-class gevent
 fi

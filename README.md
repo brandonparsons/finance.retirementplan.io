@@ -7,6 +7,8 @@
 1. Python (virtualenv/pip)
 2. Redis
 
+**DO NOT UPDATE SCIPY/NUMPY versions** - Heroku buildpack (https://github.com/thenovices/heroku-buildpack-scipy) is locked at this version
+
 ### To run server ###
 
 1. `source bin/venv/activate`

@@ -19,5 +19,3 @@ ystockquote==0.2.4
 
 numpy==1.8.1
 scipy==0.14.0
-
-# DO NOT UPDATE - Heroku buildpack (https://github.com/thenovices/heroku-buildpack-scipy) is locked at this version

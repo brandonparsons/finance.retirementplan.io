@@ -20,7 +20,7 @@ def clear():
 ###############
 
 def _cache_url():
-    self_url = os.environ.get('SELF_URL', 'http://localhost:5000')
+    self_url = os.environ.get('SELF_URL', 'http://rp-finance.dev')
     return self_url + '/clear_cache'
 
 def _auth_token():

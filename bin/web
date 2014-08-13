@@ -5,6 +5,5 @@ if [ "$FLASK_ENV" == "development" ]; then
   PARENTDIR="$(dirname "$DIR")"
   $PARENTDIR/venv/bin/python server.py
 else
-  # gunicorn server:app -w 3
-  newrelic-admin run-program gunicorn --log-file=- --workers=8 server:app  # --worker-class gevent
+  newrelic-admin run-program gunicorn --log-file=- -b "0.0.0.0:$PORT" --workers=6 server:app # --workers=6
 fi

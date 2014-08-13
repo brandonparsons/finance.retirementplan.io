@@ -1,1 +1,1 @@
-web: gunicorn server:app --log-file=- --workers=8
+web: bin/web

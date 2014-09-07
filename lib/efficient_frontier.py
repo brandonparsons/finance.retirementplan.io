@@ -2,6 +2,8 @@
 # IMPORTS #
 ###########
 
+from __future__ import absolute_import
+
 import math
 from numpy import linspace, ones, dot, array
 import scipy, scipy.optimize

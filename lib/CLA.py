@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 # On 20130210, v0.2
 # Critical Line Algorithm
 # by MLdP <lopezdeprado@lbl.gov>

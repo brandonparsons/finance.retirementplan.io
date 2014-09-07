@@ -2,10 +2,11 @@
 # IMPORTS #
 ###########
 
+from __future__ import absolute_import
+
 import os
 import json
 import redis
-import pandas as pd
 import bmemcached
 import hashlib
 
@@ -16,6 +17,8 @@ from flask import jsonify
 from flask import abort
 
 from flask_sslify import SSLify
+
+import pandas as pd
 
 from lib.efficient_frontier import efficient_frontier
 

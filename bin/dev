@@ -1,0 +1,8 @@
+#!/bin/sh
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PARENTDIR="$(dirname "$DIR")"
+
+export $(cat $PARENTDIR/.env | xargs)
+
+$PARENTDIR/venv/bin/python server.py

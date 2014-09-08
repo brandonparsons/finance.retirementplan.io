@@ -75,7 +75,7 @@
     "asset_id": "CDN-LONG-BOND"
   },
   {
-    "ticker": "VSB",
+    "ticker": "VSB.TO",
     "description": "Vanguard Canadian Short term bond index",
     "asset_id": "CDN-SHORT-BOND"
   },

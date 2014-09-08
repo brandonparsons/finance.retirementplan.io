@@ -6,7 +6,7 @@
   },
   {
     "ticker": "ZRE.TO",
-    "description": "BMO Equal Weight REIT's Index ETF",
+    "description": "BMO Equal-Weight REIT Index ETF",
     "asset_id": "CDN-REALESTATE"
   },
   {
@@ -31,7 +31,7 @@
   },
   {
     "ticker": "RWO",
-    "description": "SPDR Down Jones Global Real Estate",
+    "description": "SPDR Dow Jones Global Real Estate",
     "asset_id": "INTL-REALESTATE"
   },
   {
@@ -66,27 +66,27 @@
   },
   {
     "ticker": "XLB",
-    "description": "iShares DEX Long Term Bond ETF",
+    "description": "iShares DEX Long-Term Bond ETF",
     "asset_id": "CDN-LONG-BOND"
   },
   {
     "ticker": "ZLC.TO",
-    "description": "BMO Long-term Corporate Bond Index ETF",
+    "description": "BMO Long-Term Corporate Bond Index ETF",
     "asset_id": "CDN-LONG-BOND"
   },
   {
     "ticker": "VSB.TO",
-    "description": "Vanguard Canadian Short term bond index",
+    "description": "Vanguard Canadian Short-Term Bond Index",
     "asset_id": "CDN-SHORT-BOND"
   },
   {
     "ticker": "XSB.TO",
-    "description": "iShares DEX Short Term Bond ETF",
+    "description": "iShares DEX Short-Term Bond ETF",
     "asset_id": "CDN-SHORT-BOND"
   },
   {
     "ticker": "ZCS.TO",
-    "description": "BMO Short Term Corporate Bond Index ETF",
+    "description": "BMO Short-Term Corporate Bond Index ETF",
     "asset_id": "CDN-SHORT-BOND"
   },
   {
@@ -96,7 +96,7 @@
   },
   {
     "ticker": "BWZ",
-    "description": "SPDR Barclays Capital Short-term International Treasury Bond ETF",
+    "description": "SPDR Barclays Capital Short-Term International Treasury Bond ETF",
     "asset_id": "INTL-BOND"
   },
   {
@@ -126,12 +126,12 @@
   },
   {
     "ticker": "ITR",
-    "description": "SPDR Barclays Cap Intermediate Term Bond ETF",
+    "description": "SPDR Barclays Cap Intermediate-Term Bond ETF",
     "asset_id": "US-MED-CORP-BOND"
   },
   {
     "ticker": "VCIT",
-    "description": "Vanguard Intermediate Term Corporate Bond Index ETF",
+    "description": "Vanguard Intermediate-Term Corporate Bond Index ETF",
     "asset_id": "US-MED-CORP-BOND"
   },
   {
@@ -151,7 +151,7 @@
   },
   {
     "ticker": "ITE",
-    "description": "SPDR Barclays Capital Intermediate-term Treasury ETF",
+    "description": "SPDR Barclays Capital Intermediate-Term Treasury ETF",
     "asset_id": "US-MED-GOV-BOND"
   },
   {
@@ -161,7 +161,7 @@
   },
   {
     "ticker": "VGIT",
-    "description": "Vangaurd Intermediate Term Government Bond ETF",
+    "description": "Vangaurd Intermediate-Term Government Bond ETF",
     "asset_id": "US-MED-GOV-BOND"
   },
   {
@@ -171,7 +171,7 @@
   },
   {
     "ticker": "LWC",
-    "description": "SPDR Barclays Capital Long Term Corporate Bond ETF",
+    "description": "SPDR Barclays Capital Long-Term Corporate Bond ETF",
     "asset_id": "US-LONG-CORP-BOND"
   },
   {
@@ -191,7 +191,7 @@
   },
   {
     "ticker": "TLO",
-    "description": "SPDR Lehman Long-term Treasury Bond ETF",
+    "description": "SPDR Lehman Long-Term Treasury Bond ETF",
     "asset_id": "US-LONG-GOV-BOND"
   },
   {
@@ -201,7 +201,7 @@
   },
   {
     "ticker": "VGLT",
-    "description": "Vanguard Long-term Government Bond ETF",
+    "description": "Vanguard Long-Term Government Bond ETF",
     "asset_id": "US-LONG-GOV-BOND"
   },
   {
@@ -216,7 +216,7 @@
   },
   {
     "ticker": "SCPB",
-    "description": "SPDR Barclays Capital Short Term Bond ETF",
+    "description": "SPDR Barclays Capital Short-Term Bond ETF",
     "asset_id": "US-SHORT-CORP-BOND"
   },
   {
@@ -231,7 +231,7 @@
   },
   {
     "ticker": "SHV",
-    "description": "iShares Barclays Short-term Treasury Bond Fund",
+    "description": "iShares Barclays Short-Term Treasury Bond Fund",
     "asset_id": "US-SHORT-GOVT-BOND"
   },
   {
@@ -246,7 +246,7 @@
   },
   {
     "ticker": "VGSH",
-    "description": "Vanguard Short-term Government Bond ETF",
+    "description": "Vanguard Short-Term Government Bond ETF",
     "asset_id": "US-SHORT-GOVT-BOND"
   },
   {

@@ -135,22 +135,22 @@ def _solve_frontier(R, C, rf):
     :param rf: risk-free rate
     """
     def fitness(W, R, C, r):
-	# For given level of return r, find weights which minimizes portfolio variance.
-	mean, var = _port_mean_var(W, R, C)
-	# Big penalty for not meeting stated portfolio return effectively serves as optimization constraint
-	penalty = 50*abs(mean-r)
-	return var + penalty
+        # For given level of return r, find weights which minimizes portfolio variance.
+        mean, var = _port_mean_var(W, R, C)
+        # Big penalty for not meeting stated portfolio return effectively serves as optimization constraint
+        penalty = 50*abs(mean-r)
+        return var + penalty
     frontier_mean, frontier_var, frontier_weights = [], [], []
     n = len(R) # Number of assets in the portfolio
     for r in linspace(min(R), max(R), num=NUMBER_PORTFOLIOS_TO_GENERATE): # Iterate through the range of returns on Y axis
-	W = ones([n])/n  # Start optimization with equal weights
-	b_ = [(0,1) for i in range(n)]
-	c_ = ({'type':'eq', 'fun': lambda W: sum(W)-1. })
-	optimized = scipy.optimize.minimize(fitness, W, (R, C, r), method='SLSQP', constraints=c_, bounds=b_)
-	if not optimized.success:
-	    raise BaseException(optimized.message)
-	# Add point to the min-var frontier [x,y] = [optimized.x, r]
-	frontier_mean.append(r) # return
-	frontier_var.append(_port_var(optimized.x, C)) # min-variance based on optimized weights
-	frontier_weights.append(optimized.x)
+        W = ones([n])/n  # Start optimization with equal weights
+        b_ = [(0,1) for i in range(n)]
+        c_ = ({'type':'eq', 'fun': lambda W: sum(W)-1. })
+        optimized = scipy.optimize.minimize(fitness, W, (R, C, r), method='SLSQP', constraints=c_, bounds=b_)
+        if not optimized.success:
+            raise BaseException(optimized.message)
+        # Add point to the min-var frontier [x,y] = [optimized.x, r]
+        frontier_mean.append(r) # return
+        frontier_var.append(_port_var(optimized.x, C)) # min-variance based on optimized weights
+        frontier_weights.append(optimized.x)
     return array(frontier_mean), array(frontier_var), frontier_weights

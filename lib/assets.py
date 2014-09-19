@@ -7,6 +7,8 @@ from __future__ import absolute_import
 import os
 import json
 import datetime
+from   dateutil.relativedelta import relativedelta
+
 import pandas           as pd
 import pandas.io.data   as web
 import numpy            as np
@@ -31,6 +33,9 @@ def asset_json():
 
 def mean_return_json():
     return _mean_returns().to_json()
+
+def five_year_mean_return_json():
+    return _five_year_mean_returns().to_json()
 
 def reverse_optimized_returns_json():
     return _reverse_optimized_returns().to_json()
@@ -73,6 +78,17 @@ def _mean_returns():
     means           = means.sort_index()
     means.index     = _replacement_values_for_tickers()
     means           = means.sort_index()
+    return means
+
+def _five_year_mean_returns():
+    today           = datetime.date.today()
+    five_years_ago  = ( today - relativedelta(years=5) )
+
+    five_year_returns   = _monthly_returns()[five_years_ago:today]
+    means               = five_year_returns.mean()
+    means               = means.sort_index()
+    means.index         = _replacement_values_for_tickers()
+    means               = means.sort_index()
     return means
 
 def _std_dev_returns():

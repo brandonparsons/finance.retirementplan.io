@@ -102,10 +102,16 @@ def cholesky_decomposition(asset_ids):
 
     return df.drop(asset_ids_to_eliminate, axis=0).drop(asset_ids_to_eliminate, axis=1)
 
-def mean_returns(asset_ids, returns_source="reverse_optimized_returns"):
+def mean_returns(asset_ids, returns_source):
+    """
+    Grabs mean return data, and returns a dataframe with only the relavant columns
+    :param asset_ids: array of asset ID's (e.g. INTL-STOCK)
+    :param returns_source: Which data we are interested in - one of: 'reverse_optimized_returns', 'mean_returns', 'five_year_returns'
+    """
+
     # No need to memoize this unless jsonify is taking lots of time - data from redis
     # Mean returns is a *Series*
-    json = redis_conn.get(returns_source) # other option: 'mean_returns'
+    json = redis_conn.get(returns_source)
     df   = pd.io.json.read_json(json, typ='series')
 
     if len(asset_ids) > 0:
@@ -130,15 +136,19 @@ def std_dev_returns(asset_ids):
     else:
         return df
 
-def build_efficient_frontier_for(asset_ids):
+def build_efficient_frontier_for(asset_ids, use_market_implied_returns=True):
     md5Hash = hashlib.md5("-".join(asset_ids)).hexdigest()
-    cache_key = "efficient_frontier/" + md5Hash
+    cache_key = "efficient_frontier/" + md5Hash + "/" + ("implied" if use_market_implied_returns else "historical")
     val = cache.get(cache_key)
     if val is None:
         app.logger.info("[Cache Miss] Building efficient frontier for: %s" % asset_ids)
-        means    = mean_returns(asset_ids)
-        covars   = covariance_matrix(asset_ids)
-        frontier = efficient_frontier(asset_ids, means, covars)
+        if use_market_implied_returns:
+            asset_returns = mean_returns(asset_ids, returns_source="reverse_optimized_returns")
+        else:
+            asset_returns = mean_returns(asset_ids, returns_source="mean_returns")
+        covars = covariance_matrix(asset_ids)
+        historical_returns = mean_returns(asset_ids, returns_source="five_year_returns")
+        frontier = efficient_frontier(asset_ids, asset_returns, historical_returns, covars)
         # FIXME: You are json dumping to store in memcache, marshalling to return
         # to request, then flask-jsonifying back again. Better way? For later......
         cache.set(cache_key, json.dumps(frontier))
@@ -191,7 +201,9 @@ def performance_route():
     asset_ids = get_key_in_json('asset_ids', request.json)
     asset_ids.sort()
     df = pd.DataFrame()
-    df['mean'] = mean_returns(asset_ids)
+    df['mean'] = mean_returns(asset_ids, returns_source="reverse_optimized_returns")
+    df['historical_mean'] = mean_returns(asset_ids, returns_source="mean_returns")
+    df['five_year_mean'] = mean_returns(asset_ids, returns_source="five_year_returns")
     df['std_dev'] = std_dev_returns(asset_ids)
     return Response(df.transpose().to_json(), mimetype='application/json')
 

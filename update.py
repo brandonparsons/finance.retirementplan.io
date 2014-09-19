@@ -9,6 +9,7 @@ from lib.etfs         import etf_json                         as etf_json
 from lib.etfs         import quotes_json                      as quotes_json
 from lib.assets       import asset_json                       as asset_json
 from lib.assets       import mean_return_json                 as mean_return_json
+from lib.assets       import five_year_mean_return_json       as five_year_mean_return_json
 from lib.assets       import reverse_optimized_returns_json   as reverse_optimized_returns_json
 from lib.assets       import std_dev_returns_json             as std_dev_returns_json
 from lib.assets       import covariance_matrix_json           as covariance_matrix_json
@@ -40,8 +41,9 @@ pipe.set(name='etf_list',                   value=etf_json())
 pipe.set(name='inflation',                  value=inflation_json())
 pipe.set(name='real_estate',                value=real_estate_json())
 pipe.set(name='quotes',                     value=quotes_json())
-pipe.set(name='mean_returns',               value=mean_return_json())
-pipe.set(name='reverse_optimized_returns',  value=reverse_optimized_returns_json())
+pipe.set(name='mean_returns',               value=mean_return_json()) # Historical returns (all data)
+pipe.set(name='five_year_returns',          value=five_year_mean_return_json()) # Rolling 5 year returns
+pipe.set(name='reverse_optimized_returns',  value=reverse_optimized_returns_json()) # Market implied returns
 pipe.set(name='std_dev_returns',            value=std_dev_returns_json())
 pipe.set(name='covariance_matrix',          value=covariance_matrix_json())
 pipe.set(name='cholesky_decomposition',     value=cholesky_decomposition_json())

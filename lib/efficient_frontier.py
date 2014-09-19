@@ -22,22 +22,22 @@ NUMBER_PORTFOLIOS_TO_GENERATE = 20
 # PUBLIC API #
 ##############
 
-def efficient_frontier(asset_ids, mean_returns, covariance_matrix):
+def efficient_frontier(asset_ids, asset_returns, historical_returns, covariance_matrix):
     """
     Generates and formats an efficient frontier for a given set of asset ids,
-    and their corresponding mean returns and covariances. ID's and the columns
-    / indexes of means/covars are expected to match.
+    and their corresponding mean returns and covariances. ID's and the columns/indexes of means/covars are expected to match.
     :param asset_ids: array of asset ID's (e.g. INTL-STOCK)
-    :param mean_returns: numpy array of the mean returns corresponding to passed in asset_ids
+    :param asset_returns: numpy array of the relevant returns corresponding to passed in asset_ids - typically the market implied returns
+    :param historical_returns: numpy array of the historical mean returns corresponding to passed in asset_ids
     :param covariance_matrix: numpy matrix of the covariances corresponding to passed in asset_ids
     """
 
     # Generate the frontier
-    rfr = risk_free_rate.monthly_risk_free_rate()
-    frontier = _solve_frontier(mean_returns, covariance_matrix, rfr)
+    rfr      = risk_free_rate.monthly_risk_free_rate()
+    frontier = _solve_frontier(asset_returns, covariance_matrix, rfr)
 
-    # Format frontier
-    formatted = _format_frontier(frontier, asset_ids)
+    # Format the frontier, pass in the historical returns so that historical portfolio returns can be calculated
+    formatted = _format_frontier(frontier, asset_ids, historical_returns)
 
     # Sort & cull
     culled = _sort_and_cull_frontier(formatted)
@@ -63,7 +63,7 @@ def _sort_and_cull_frontier(frontier):
 
     return culled_frontier
 
-def _format_frontier(frontier, asset_ids):
+def _format_frontier(frontier, asset_ids, historical_returns):
     frontier_means      = frontier[0]
     frontier_variances  = frontier[1]
     frontier_weights    = frontier[2]
@@ -75,10 +75,11 @@ def _format_frontier(frontier, asset_ids):
         formatted_frontier.append({
             "allocation": dict(zip(asset_ids, rounded_portfolio_allocation)),
             "statistics": {
-            "mean_return":              this_portfolios_mean,
-            "std_dev":                  this_portfolios_std_dev,
-            "annual_nominal_return":    _annual_nominal_return(this_portfolios_mean),
-            "annual_std_dev":           _annual_std_dev(this_portfolios_std_dev),
+                "mean_return":              this_portfolios_mean,
+                "std_dev":                  this_portfolios_std_dev,
+                "annual_nominal_return":    _annual_nominal_return(this_portfolios_mean),
+                "annual_std_dev":           _annual_std_dev(this_portfolios_std_dev),
+                "annual_alternate_return":  _annual_nominal_return(_port_mean(portfolio_allocation, historical_returns))
             }
         })
     return formatted_frontier
@@ -89,7 +90,7 @@ def _annual_nominal_return(monthly_mean_return, nominal=True):
     """
     annualized = math.pow((1 + monthly_mean_return), 12) - 1
     if not nominal:
-	annualized += 0.02 # Assume 2% inflation
+        annualized += 0.02 # Assume 2% inflation ## This is NOT getting called by default
     return annualized
 
 def _annual_std_dev(monthly_std_dev):
